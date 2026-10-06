@@ -230,9 +230,9 @@
         @media (max-width: 520px) { .badr-note { flex-direction: column; text-align: center; } }
         .fake-row {
             background: rgba(0, 0, 0, 0.18); border-color: rgba(255, 255, 255, 0.05); color: rgba(250, 249, 247, 0.55);
-            filter: blur(7px); opacity: 0.8; pointer-events: none; user-select: none; -webkit-user-select: none;
+            filter: blur(6px); opacity: 0.85; pointer-events: none; user-select: none; -webkit-user-select: none;
         }
-        .fake-name { height: 16px; border-radius: 999px; background: rgba(250, 249, 247, 0.55); }
+        .fake-name { height: 18px; border-radius: 999px; background: rgba(250, 249, 247, 0.55); }
 
         /* ---- Leaderboard ---- */
         .sabha-board { width: 100%; max-width: 1300px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; min-height: 60vh; }
@@ -533,11 +533,14 @@
         // database: the row count, the order and every number are made up, and the member's own
         // row always sits in the same spot — so the list cannot be read back into a rank.
         const FAKE_BOARD = (() => {
-            const hues = ['#f4c82b', '#f04e3a', '#3bb9ab', '#086fb6', '#8a7ee2', '#c9844a', '#a8b8c8'];
-            const widths = [46, 62, 38, 54, 70, 42, 58, 50];
+            // Every stand-in wears سراج's avatar (the test profile, nobody's real face). It is drawn
+            // in greys, so it is tinted first and then turned a different way round the wheel per row.
+            const hues = [0, 150, 320, 0, 205, 95, 265, 40, 180];
+            // Name bars in px, sized like the short names the team actually has.
+            const widths = [62, 84, 48, 0, 74, 54, 92, 58, 70];
             // Offsets from the member's OWN score, so the numbers around them look plausible.
             const gaps = [190, 115, 45, 0, -35, -90, -160, -235, -310];
-            return gaps.map((g, i) => ({ id: i, me: i === 3, gap: g, hue: hues[i % hues.length], width: widths[i % widths.length] }));
+            return gaps.map((g, i) => ({ id: i, me: i === 3, gap: g, hue: hues[i], width: widths[i] }));
         })();
 
         // One box = one slot on the board. When several players are tied on the score, the box is
@@ -2109,8 +2112,10 @@
                                             ) : (
                                                 <div key={r.id} aria-hidden="true" className="fake-row flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-2xl border-2">
                                                     <div className="w-8 shrink-0 text-center font-black text-xl">؟</div>
-                                                    <div className="fake-av w-14 h-14 rounded-full shrink-0" style={{ background: `radial-gradient(circle at 50% 38%, #faf9f7 0 18%, ${r.hue} 19% 100%)` }}></div>
-                                                    <div className="flex-1 min-w-0"><div className="fake-name" style={{ width: r.width + '%' }}></div></div>
+                                                    <div className="w-14 h-14 rounded-full overflow-hidden bg-raisin shrink-0 border-2" style={{ borderColor: 'rgba(255,255,255,0.12)' }}>
+                                                        <img src={avatarSrc("سراج")} alt="" className="w-full h-full object-cover" style={{ filter: `sepia(1) saturate(4) hue-rotate(${r.hue}deg)` }} />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0"><div className="fake-name" style={{ width: r.width + 'px' }}></div></div>
                                                     <span className="shrink-0 font-black text-3xl">{Math.max(myBoardPoints + r.gap, 0)}</span>
                                                 </div>
                                             ))}
