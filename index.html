@@ -190,6 +190,50 @@
 
         /* ---- Week navigation slide ---- */
 
+        /* ---- E-mail gate (from MdwnhCourses css/base.css, in this site's dark glass) ---- */
+        .gate-box { width: min(460px, 100%); text-align: center; padding: clamp(26px, 6vw, 40px) clamp(20px, 5vw, 36px); }
+        .gate-form { display: flex; gap: 8px; margin-top: 24px; }
+        .gate-form input {
+            flex: 1; min-width: 0; font: inherit; font-weight: 700; direction: ltr; text-align: start;
+            background: rgba(26, 26, 26, 0.8); color: #faf9f7; border: 2px solid rgba(250, 249, 247, 0.1);
+            border-radius: 999px; padding: 12px 20px; outline: none; transition: border-color .25s ease;
+        }
+        .gate-form input::placeholder { color: rgba(250, 249, 247, 0.3); }
+        .gate-form input:focus { border-color: #086fb6; }
+        .gate-form button {
+            flex: 0 0 auto; background: #f4c82b; color: #1a1a1a; border-radius: 999px; padding: 12px 28px; font-weight: 900;
+            transition: transform .28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow .25s ease, background .25s ease;
+        }
+        .gate-form button:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(244, 200, 43, 0.5); }
+        .gate-form button:disabled { background: rgba(250, 249, 247, 0.12); color: rgba(250, 249, 247, 0.35); transform: none; box-shadow: none; cursor: default; }
+        .gate-msg { margin-top: 14px; font-size: 14px; font-weight: 700; color: #f04e3a; min-height: 1.4em; }
+        .gate-form.bad input { border-color: #f04e3a; animation: gateNudge .4s ease; }
+        @keyframes gateNudge { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .gate-note { margin-top: 22px; font-size: 12px; color: rgba(250, 249, 247, 0.3); line-height: 1.7; }
+        @media (max-width: 420px) { .gate-form { flex-direction: column; } }
+        @media (prefers-reduced-motion: reduce) { .gate-form.bad input { animation: none; } }
+
+        /* ---- Hidden board: the بدر notice and the blurred stand-in rows ---- */
+        .badr-note {
+            display: flex; align-items: center; gap: 18px; padding: 18px 22px; margin-bottom: 24px; border-radius: 24px;
+            background: linear-gradient(135deg, rgba(244, 200, 43, 0.14), rgba(240, 78, 58, 0.06));
+            border: 1px solid rgba(244, 200, 43, 0.3);
+        }
+        .badr-note img { width: 104px; height: auto; flex: 0 0 auto; filter: drop-shadow(0 6px 18px rgba(244, 200, 43, 0.35)); }
+        .badr-note h3 { font-size: 1.2rem; font-weight: 900; color: #f4c82b; }
+        .badr-note p { margin-top: 6px; font-size: 0.9rem; line-height: 1.85; color: rgba(250, 249, 247, 0.75); }
+        .badr-note p b { color: #faf9f7; font-weight: 900; }
+        .badr-left {
+            display: inline-block; margin-top: 10px; padding: 4px 14px; border-radius: 999px; font-size: 0.75rem; font-weight: 900;
+            color: #f4c82b; background: rgba(244, 200, 43, 0.12); border: 1px solid rgba(244, 200, 43, 0.3);
+        }
+        @media (max-width: 520px) { .badr-note { flex-direction: column; text-align: center; } }
+        .fake-row {
+            background: rgba(0, 0, 0, 0.18); border-color: rgba(255, 255, 255, 0.05); color: rgba(250, 249, 247, 0.55);
+            filter: blur(7px); opacity: 0.8; pointer-events: none; user-select: none; -webkit-user-select: none;
+        }
+        .fake-name { height: 16px; border-radius: 999px; background: rgba(250, 249, 247, 0.55); }
+
         /* ---- Leaderboard ---- */
         .sabha-board { width: 100%; max-width: 1300px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; min-height: 60vh; }
 
@@ -465,6 +509,37 @@
             ? `${ROSTER_BASE}/avatars/${SLUG_BY_KEY[name]}.png`
             : `./MdwnhMembers/${name}.png?v=${AVATAR_V}`;
 
+        // E-mail gate, copied from MdwnhCourses (js/core.js). A door, not a lock: members.json
+        // is public and every accepted address is in it. EMAIL_TO_KEY is filled from the roster
+        // before render; ROSTER.ok stays false if that fetch failed, and the gate then refuses
+        // everyone rather than letting anyone through.
+        const EMAIL_TO_KEY = {};  // "name@example.com" -> "الشعيرة" (dbKey)
+        const ROSTER = { ok: false };
+        const cleanEmail = (e) => String(e || '').trim().toLowerCase();
+        // Same key the Courses site and دليل الفريق use. All three live on one GitHub Pages
+        // origin, so whoever signed in to one is already signed in here.
+        const MEMBER_KEY = 'mdwnh.member';
+        const store = {
+            get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+            set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+            del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+        };
+
+        // خطة بدر الكبرى ends here (BADR_END in MdwnhLibrary/js/config.js). The board stays hidden
+        // until the plan's closing ceremony, then the points start over.
+        const BADR_END = new Date(2026, 9, 31, 23, 59, 59);
+
+        // The stand-in board shown while the real one is hidden. NOTHING here comes from the
+        // database: the row count, the order and every number are made up, and the member's own
+        // row always sits in the same spot — so the list cannot be read back into a rank.
+        const FAKE_BOARD = (() => {
+            const hues = ['#f4c82b', '#f04e3a', '#3bb9ab', '#086fb6', '#8a7ee2', '#c9844a', '#a8b8c8'];
+            const widths = [46, 62, 38, 54, 70, 42, 58, 50];
+            // Offsets from the member's OWN score, so the numbers around them look plausible.
+            const gaps = [190, 115, 45, 0, -35, -90, -160, -235, -310];
+            return gaps.map((g, i) => ({ id: i, me: i === 3, gap: g, hue: hues[i % hues.length], width: widths[i % widths.length] }));
+        })();
+
         // One box = one slot on the board. When several players are tied on the score, the box is
         // SPLIT into a pane each — divider down the middle, avatar and name on either side — so
         // the tie reads as one shared place holding two people, not as two places.
@@ -620,12 +695,10 @@
             const [pickerMonth, setPickerMonth] = useState(new Date().getMonth());
             const [pickerYear, setPickerYear] = useState(new Date().getFullYear());
 
-            // Member password system
-            const [pendingUser, setPendingUser] = useState(null);
-            const [memberPasswordMode, setMemberPasswordMode] = useState(null); // 'set' | 'enter'
-            const [memberPasswordInput, setMemberPasswordInput] = useState("");
-            const [memberPasswordError, setMemberPasswordError] = useState("");
-            const [isMemberPasswordLoading, setIsMemberPasswordLoading] = useState(false);
+            // E-mail gate
+            const [gateEmail, setGateEmail] = useState("");
+            const [gateMsg, setGateMsg] = useState(ROSTER.ok ? "" : "تعذّر تحميل قائمة الأعضاء. تأكّد من اتصالك ثم أعد تحميل الصفحة.");
+            const [gateBad, setGateBad] = useState(0); // bumped on every refusal, so the shake replays
 
             // Helper to handle Arabic numerals during data entry
             const arabicToLatin = (str) => {
@@ -635,7 +708,9 @@
             const [historyFilterUser, setHistoryFilterUser] = useState("ALL");
             const [historySettings, setHistorySettings] = useState({ showLogs: true, showPunishments: true, showRewards: true, showManualPoints: true });
 
-            const [globalPasswordsEnabled, setGlobalPasswordsEnabled] = useState(true);
+            // The board is hidden unless the leader has switched it back on. It starts hidden and
+            // an unset value means hidden, so real names never flash before the setting arrives.
+            const [boardHidden, setBoardHidden] = useState(true);
             const [showMemberSelectOverlay, setShowMemberSelectOverlay] = useState(null); // 'history' or 'target'
 
             const [celebration, setCelebration] = useState(null);
@@ -722,10 +797,10 @@
                     setHistoryLogs(parsedHistory);
                 });
 
-                const settingsRef = ref(db, 'settings/passwordsEnabled');
+                const settingsRef = ref(db, 'settings/leaderboardHidden');
                 const sUnsubscribe = onValue(settingsRef, (snapshot) => {
                     const val = snapshot.val();
-                    setGlobalPasswordsEnabled(val === null ? true : val);
+                    setBoardHidden(val === null ? true : !!val);
                 });
 
                 // صحبة الفجر — live-synced daily log data (separate from players/history)
@@ -741,13 +816,17 @@
 
             // Restore saved login on mount (skip password re-entry since already authenticated)
             useEffect(() => {
-                const saved = localStorage.getItem("mdwnh_user");
+                const saved = store.get("mdwnh_user");
+                // Signed in on the Courses site or دليل الفريق already — same origin, same key.
+                const shared = EMAIL_TO_KEY[cleanEmail(store.get(MEMBER_KEY))];
                 if (saved && LOGIN_MEMBERS.includes(saved)) {
                     setCurrentUser(saved);
                     setSabhaMe(saved);
                     if (saved === "نواف") setUserTab('fajr');
+                } else if (shared && LOGIN_MEMBERS.includes(shared)) {
+                    finishMemberLogin(shared);
                 } else {
-                    const savedMe = localStorage.getItem("sabha_me");
+                    const savedMe = store.get("sabha_me");
                     if (savedMe) setSabhaMe(savedMe);
                 }
             }, []);
@@ -760,12 +839,12 @@
                 let params; try { params = new URLSearchParams(window.location.search); } catch (e) { return; }
                 const rawUser = params.get('user');
                 const wantsClaim = params.has('claim');
-                if (rawUser && !localStorage.getItem("mdwnh_user")) {
+                if (rawUser && !store.get("mdwnh_user")) {
                     const resolved = resolveMemberName(rawUser);
                     if (resolved) {
-                        finishMemberLogin(resolved); // bypasses the member password on purpose
+                        finishMemberLogin(resolved); // the Library already knows who they are
                     } else {
-                        try { showToast('لم نتعرّف على اسمك تلقائيًا — اختر اسمك للمتابعة واستلام نقاطك'); } catch (e) {}
+                        try { showToast('لم نتعرّف على اسمك تلقائيًا، اكتب بريدك للمتابعة واستلام نقاطك'); } catch (e) {}
                     }
                 }
                 if ((rawUser || wantsClaim) && window.history && window.history.replaceState) {
@@ -830,12 +909,13 @@
                 // others' points change — those must never fire the card on a plain page open.
                 const tierWentUp = prevUserTierRef.current !== null && newTier > prevUserTierRef.current;
                 const pointsWentUp = prevUserPointsRef.current !== null && myPoints > prevUserPointsRef.current;
-                if (tierWentUp && pointsWentUp) {
+                // A promotion card names your tier, and a tier is a rank — so none while hidden.
+                if (tierWentUp && pointsWentUp && !boardHidden) {
                     setPendingPromotion(TIER_CONFIG[newTier - 1]);
                 }
                 prevUserTierRef.current = newTier;
                 prevUserPointsRef.current = myPoints;
-            }, [players, currentUser]);
+            }, [players, currentUser, boardHidden]);
 
             // Fire queued promotion once all point-award animations have finished.
             // Guards use ALL four signals so the effect re-runs whenever any of them clears:
@@ -872,69 +952,31 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }, [currentUser, adminMode, showPasswordPrompt]);
 
-            // Member password system
-            const selectUser = async (name) => {
-                if (!globalPasswordsEnabled) {
-                    finishMemberLogin(name);
-                    return;
+            // E-mail gate: the address is matched against the roster here in the browser and
+            // opens that member's own page directly. No picker, no password.
+            const refuseGate = (msg) => { setGateMsg(msg); setGateBad(n => n + 1); };
+
+            const submitGate = (e) => {
+                e.preventDefault();
+                const v = cleanEmail(gateEmail);
+                if (!v) return;
+                if (!ROSTER.ok) return refuseGate("تعذّر تحميل قائمة الأعضاء. تأكّد من اتصالك ثم أعد تحميل الصفحة.");
+                const name = EMAIL_TO_KEY[v];
+                if (!name || !LOGIN_MEMBERS.includes(name)) {
+                    return refuseGate("هذا البريد ليس في قائمة أعضاء المدونة. جرّب البريد الذي سجّلته لدينا.");
                 }
-                
-                setIsMemberPasswordLoading(true);
-                setPendingUser(name);
-                try {
-                    // Always read fresh from Firebase - never use cached data
-                    const playerRef = ref(db, `players/${name}/password`);
-                    const snap = await get(playerRef);
-                    if (snap.exists() && snap.val()) {
-                        setMemberPasswordMode('enter');
-                    } else {
-                        setMemberPasswordMode('set');
-                    }
-                } catch (e) {
-                    setMemberPasswordMode('set');
-                } finally {
-                    setIsMemberPasswordLoading(false);
-                    setMemberPasswordInput("");
-                    setMemberPasswordError("");
-                }
+                store.set(MEMBER_KEY, v);
+                finishMemberLogin(name);
             };
 
             const finishMemberLogin = (name) => {
                 setCurrentUser(name);
                 setSabhaMe(name);
                 if (name === "نواف") setUserTab('fajr');
-                try { localStorage.setItem('sabha_me', name); } catch(e) {}
-                localStorage.setItem("mdwnh_user", name);
-                setPendingUser(null);
-                setMemberPasswordMode(null);
-                setMemberPasswordInput("");
-                setMemberPasswordError("");
-            };
-
-            const handleMemberPassword = async (e) => {
-                e.preventDefault();
-                if (!memberPasswordInput.trim()) return;
-                setIsMemberPasswordLoading(true);
-                try {
-                    // Always read fresh - ensures manual Firebase changes work immediately
-                    const playerRef = ref(db, `players/${pendingUser}/password`);
-                    if (memberPasswordMode === 'set') {
-                        await set(playerRef, memberPasswordInput.trim());
-                        finishMemberLogin(pendingUser);
-                    } else {
-                        const snap = await get(playerRef);
-                        const storedPw = snap.val();
-                        if (storedPw && storedPw === memberPasswordInput.trim()) {
-                            finishMemberLogin(pendingUser);
-                        } else {
-                            setMemberPasswordError("كلمة المرور غير صحيحة. حاول مرة أخرى.");
-                        }
-                    }
-                } catch (err) {
-                    setMemberPasswordError("حدث خطأ. حاول مرة أخرى.");
-                } finally {
-                    setIsMemberPasswordLoading(false);
-                }
+                store.set('sabha_me', name);
+                store.set("mdwnh_user", name);
+                setGateEmail("");
+                setGateMsg("");
             };
 
             const showToast = (message) => {
@@ -949,16 +991,15 @@
                 setHistorySettings(prev => ({ ...prev, [key]: !prev[key] }));
             };
 
-            const togglePasswordsEnabled = async () => {
-                const newVal = !globalPasswordsEnabled;
-                setGlobalPasswordsEnabled(newVal); // Optimistic update
+            const toggleBoardHidden = async () => {
+                const newVal = !boardHidden;
+                setBoardHidden(newVal); // Optimistic update
                 if (adminMode) {
                     try {
-                        const settingsRef = ref(db, 'settings/passwordsEnabled');
-                        await set(settingsRef, newVal);
+                        await set(ref(db, 'settings/leaderboardHidden'), newVal);
                     } catch (e) {
-                        console.error("Failed to sync password settings:", e);
-                        setGlobalPasswordsEnabled(!newVal); // Revert on fail
+                        console.error("Failed to sync leaderboard setting:", e);
+                        setBoardHidden(!newVal); // Revert on fail
                     }
                 }
             };
@@ -967,7 +1008,9 @@
                 setCurrentUser(null);
                 setAdminMode(false);
                 setTargetUser(null);
-                localStorage.removeItem("mdwnh_user");
+                store.del("mdwnh_user");
+                // Drop the shared key too, or the gate would let the same member straight back in.
+                store.del(MEMBER_KEY);
             };
 
             const getFirstName = (name) => {
@@ -1709,7 +1752,7 @@
 
             const top3 = players.slice(0, 3);
             const activeActionUser = adminMode ? (targetUser || "اختر عضواً") : currentUser;
-            const showSelection = (!currentUser && !adminMode && !showPasswordPrompt && !memberPasswordMode);
+            const showSelection = (!currentUser && !adminMode && !showPasswordPrompt);
             const isFajrOnlyUser = currentUser === "نواف";
 
             // Tier system: assign each player a level 1-5 (top 5 = level 5, etc.)
@@ -1717,6 +1760,10 @@
             const userTierEntry = currentUser ? tieredPlayers.find(p => p.name === currentUser) : null;
             const userTierNum = userTierEntry?.tier || null;
             const userTierConfig = userTierNum ? TIER_CONFIG[userTierNum - 1] : null;
+            // Members get the stand-in board; the leader always sees the real one.
+            const hideBoard = boardHidden && !adminMode;
+            const myBoardPoints = players.find(p => p.name === currentUser)?.points ?? 0;
+            const badrDaysLeft = Math.max(Math.ceil((BADR_END - Date.now()) / 864e5), 0);
             const activeTierNum = viewedTier !== null ? viewedTier : (userTierNum || 1);
 
             // High tiers (فضيون / ذهبيون) default to the "عرض الكل" view instead of "مستواي" —
@@ -1771,28 +1818,22 @@
                                         <img src="./Logo.png" alt="ستوديو مدونة" className="h-20 sm:h-24 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
                                     </div>
 
-                                    <div className="flex flex-col items-center">
-                                        <div className="w-full text-center mb-8">
-                                            <h2 className="text-2xl font-black text-saffron drop-shadow-md">اختر أسمك</h2>
-                                            <p className="text-snow/70 mt-2 text-sm">شكرًا على مجهوداتكم!</p>
-                                        </div>
-
-                                        <div className="flex flex-wrap justify-center gap-4 sm:gap-5 max-w-2xl mx-auto mt-2">
-                                            {LOGIN_MEMBERS.map((name) => (
-                                                <button
-                                                    key={name}
-                                                    onClick={() => selectUser(name)}
-                                                    disabled={isMemberPasswordLoading}
-                                                    className="group flex flex-col items-center gap-2 transition-transform hover:-translate-y-1 active:scale-95 disabled:opacity-50"
-                                                >
-                                                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[3px] border-darker bg-darker overflow-hidden group-hover:border-spanish transition-colors shadow-lg">
-                                                        <img src={avatarSrc(name)} alt={name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { e.target.src = AVATAR_FALLBACK; }} />
-                                                    </div>
-                                                    <span className="text-snow font-bold text-sm tracking-wide bg-darker/80 px-4 py-1.5 rounded-full group-hover:bg-spanish transition-colors">
-                                                        {name}
-                                                    </span>
-                                                </button>
-                                            ))}
+                                    <div className="flex flex-col items-center w-full">
+                                        <div className="gate-box glass-panel">
+                                            <h2 className="text-2xl sm:text-3xl font-black text-saffron drop-shadow-md">هذه الصفحة لأعضاء المدونة</h2>
+                                            <p className="text-snow/70 mt-3 text-sm leading-7">اكتب بريدك المسجّل لدى المدونة لتدخل إلى صفحتك مباشرة، وسنتذكّرك على هذا الجهاز.</p>
+                                            <form key={gateBad} className={`gate-form ${gateBad ? 'bad' : ''}`} onSubmit={submitGate} noValidate>
+                                                <input
+                                                    type="email" inputMode="email" autoComplete="email" spellCheck="false"
+                                                    placeholder="you@example.com" aria-label="بريدك الإلكتروني"
+                                                    value={gateEmail}
+                                                    onChange={(e) => { setGateEmail(e.target.value); if (ROSTER.ok) setGateMsg(""); }}
+                                                    autoFocus
+                                                />
+                                                <button type="submit" disabled={!gateEmail.trim()}>ادخل</button>
+                                            </form>
+                                            <p className="gate-msg" role="status" aria-live="polite">{gateMsg}</p>
+                                            <p className="gate-note">بريدك لا يُرسل إلى أي جهة، يُقارَن هنا في المتصفح ويُحفظ على جهازك وحده.</p>
                                         </div>
 
                                         <button onClick={() => setShowPasswordPrompt(true)} className="mt-20 text-xs text-snow/30 hover:text-snow/80 transition-colors select-none">
@@ -1843,7 +1884,7 @@
                                                     <p className="text-snow/60 text-sm">مرحباً بك،</p>
                                                     <div className="flex items-center gap-2 flex-wrap">
                                                         <h1 className="text-2xl font-black text-snow drop-shadow-md">{currentUser}</h1>
-                                                        {userTierConfig && (
+                                                        {userTierConfig && !hideBoard && (
                                                             <span className="text-xs font-black px-4 py-1 rounded-full" style={{ background: userTierConfig.bg, color: userTierConfig.color, border: `1px solid ${userTierConfig.border}`, boxShadow: `0 0 10px ${userTierConfig.glow}` }}>
                                                                 {userTierConfig.emoji} {userTierConfig.nameAr}
                                                             </span>
@@ -2003,11 +2044,12 @@
                                 {/* Dashboard Boards */}
                                 {adminMode && (
                                     <div className="flex justify-center gap-4 mb-6 max-w-7xl mx-auto">
-                                        <button 
-                                            onClick={togglePasswordsEnabled}
-                                            className={`px-8 py-3 rounded-full font-black text-sm transition-all shadow-lg border ${globalPasswordsEnabled ? 'bg-carmine/20 text-carmine border-carmine/30 hover:bg-carmine hover:text-darker hover:shadow-[0_0_20px_rgba(240,78,58,0.5)]' : 'bg-verdigris/20 text-verdigris border-verdigris/30 hover:bg-verdigris hover:text-darker hover:shadow-[0_0_20px_rgba(31,168,161,0.5)]'}`}
+                                        <button
+                                            onClick={toggleBoardHidden}
+                                            title="حين تُخفى، يرى الأعضاء قائمة مموّهة بلا أسماء ولا مراكز"
+                                            className={`px-8 py-3 rounded-full font-black text-sm transition-all shadow-lg border ${boardHidden ? 'bg-verdigris/20 text-verdigris border-verdigris/30 hover:bg-verdigris hover:text-darker hover:shadow-[0_0_20px_rgba(31,168,161,0.5)]' : 'bg-carmine/20 text-carmine border-carmine/30 hover:bg-carmine hover:text-darker hover:shadow-[0_0_20px_rgba(240,78,58,0.5)]'}`}
                                         >
-                                            {globalPasswordsEnabled ? 'إيقاف كلمات المرور' : 'تشغيل كلمات المرور'}
+                                            {boardHidden ? 'إظهار قائمة المتميزين للأعضاء' : 'إخفاء قائمة المتميزين عن الأعضاء'}
                                         </button>
                                         <button 
                                             onClick={() => {
@@ -2025,7 +2067,7 @@
                                 {!adminMode && (
                                     <div className="flex items-center justify-between mb-3 flex-wrap gap-3 px-2">
                                         <h2 className="text-2xl font-black text-snow drop-shadow-md">🏆 المتميزون</h2>
-                                        <div className="flex gap-2">
+                                        <div className={hideBoard ? "hidden" : "flex gap-2"}>
                                             <button onClick={() => { setLeaderboardView('tier'); setViewedTier(null); }}
                                                 className={`px-3 py-1.5 rounded-full text-xs font-black transition-all border ${leaderboardView === 'tier' && viewedTier === null ? 'bg-saffron/20 text-saffron border-saffron/40' : 'bg-darker text-snow/50 border-snow/10 hover:text-snow/80'}`}>
                                                 مستواي
@@ -2040,6 +2082,42 @@
                                 <div className={adminMode ? "grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto mb-8" : "glass-panel p-6 sm:p-10 mb-8 max-w-5xl mx-auto"}>
 
                                     {/* Right Side: Leaderboard */}
+                                    {hideBoard ? (
+                                    /* ── HIDDEN BOARD — one list, every row but yours a blurred stand-in ── */
+                                    <div className="max-w-4xl mx-auto">
+                                        <div className="badr-note">
+                                            <img src="./badr-logo.png" alt="خطة بدر الكبرى" width="160" height="141" />
+                                            <div className="min-w-0">
+                                                <h3>المراكز مخفية حتى الحفل الختامي</h3>
+                                                <p>نقاطك ما زالت تُحتسب كما هي، لكننا أخفينا الأسماء والمراكز إلى أن تنتهي <b>خطة بدر الكبرى</b>. سنكشف الترتيب كاملًا في الحفل الختامي للخطة، وبعده تبدأ النقاط من جديد.</p>
+                                                {badrDaysLeft > 0 && (
+                                                    <span className="badr-left">{badrDaysLeft === 1 ? 'تبقّى يوم واحد' : badrDaysLeft === 2 ? 'تبقّى يومان' : badrDaysLeft <= 10 ? `تبقّت ${toArabicNum(badrDaysLeft)} أيام` : `تبقّى ${toArabicNum(badrDaysLeft)} يومًا`} على ختام الخطة</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {FAKE_BOARD.map(r => r.me ? (
+                                                <div key={r.id} className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-2xl border-2"
+                                                    style={{ background: 'rgba(244,200,43,0.1)', borderColor: 'rgba(244,200,43,0.5)' }}>
+                                                    <div className="w-8 shrink-0 text-center font-black text-xl text-saffron">؟</div>
+                                                    <div className="w-14 h-14 rounded-full overflow-hidden bg-raisin shrink-0 border-2 border-saffron">
+                                                        <img src={avatarSrc(currentUser)} alt={currentUser} className="w-full h-full object-cover" onError={(e) => { e.target.src = AVATAR_FALLBACK; }} />
+                                                    </div>
+                                                    <span className="flex-1 min-w-0 font-bold text-xl text-snow truncate">{currentUser}</span>
+                                                    <span className="shrink-0 font-black text-3xl text-saffron">{myBoardPoints}</span>
+                                                </div>
+                                            ) : (
+                                                <div key={r.id} aria-hidden="true" className="fake-row flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-2xl border-2">
+                                                    <div className="w-8 shrink-0 text-center font-black text-xl">؟</div>
+                                                    <div className="fake-av w-14 h-14 rounded-full shrink-0" style={{ background: `radial-gradient(circle at 50% 38%, #faf9f7 0 18%, ${r.hue} 19% 100%)` }}></div>
+                                                    <div className="flex-1 min-w-0"><div className="fake-name" style={{ width: r.width + '%' }}></div></div>
+                                                    <span className="shrink-0 font-black text-3xl">{Math.max(myBoardPoints + r.gap, 0)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="text-center text-snow/40 text-xs font-bold mt-6">مَن حولك هنا ليسوا حقيقيين، ومكانك في القائمة لا يدلّ على مركزك.</p>
+                                    </div>
+                                    ) : (
                                     <div className={adminMode ? "glass-panel p-6 sm:p-10" : ""}>
                                         {/* ── Tier leaderboard header (admin only; member view moved outside) ── */}
                                         {adminMode && (
@@ -2151,6 +2229,7 @@
                                             })()
                                         )}
                                     </div>
+                                    )}
 
                                     {/* Left Side: History (Admin Only) */}
                                     {adminMode && (() => {
@@ -2306,46 +2385,6 @@
                             </div>
                         )}
                     </div>
-
-                    {/* Member Password Screen - outside transform div so fixed positioning works correctly */}
-                    {memberPasswordMode && pendingUser && (
-                        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-xl animate-[fadeIn_0.25s_ease-out] px-4">
-                            <div className="glass-panel w-full max-w-sm p-8 text-center shadow-[0_30px_80px_rgba(0,0,0,0.8)] border-snow/10 animate-[slideUpFade_0.3s_ease-out]">
-                                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 border-2 border-verdigris">
-                                    <img src={avatarSrc(pendingUser)} alt={pendingUser} className="w-full h-full object-cover" />
-                                </div>
-                                <h2 className="text-xl font-black text-snow mb-1">{pendingUser}</h2>
-                                <p className="text-snow/50 text-sm mb-6">
-                                    {memberPasswordMode === 'set' ? 'أنشئ كلمة مرور لحسابك' : 'أدخل كلمة المرور'}
-                                </p>
-                                <form onSubmit={handleMemberPassword} className="flex flex-col gap-4">
-                                    <input
-                                        type="password"
-                                        placeholder="كلمة المرور"
-                                        value={memberPasswordInput}
-                                        onChange={(e) => { setMemberPasswordInput(e.target.value); setMemberPasswordError(""); }}
-                                        className="px-4 py-3 rounded-xl bg-darker border border-snow/10 text-snow focus:outline-none focus:border-verdigris text-center text-lg transition-colors"
-                                        autoFocus
-                                    />
-                                    {memberPasswordError && (
-                                        <p className="text-carmine text-sm font-bold animate-[slideDownFade_0.2s_ease-out]">{memberPasswordError}</p>
-                                    )}
-                                    <div className="flex gap-3">
-                                        <button type="button" onClick={() => { setPendingUser(null); setMemberPasswordMode(null); setMemberPasswordInput(""); setMemberPasswordError(""); }} className="flex-1 py-3 bg-darker hover:bg-raisin rounded-xl text-snow font-bold transition">إلغاء</button>
-                                        <button type="submit" disabled={isMemberPasswordLoading || !memberPasswordInput.trim()} className="flex-1 py-3 bg-verdigris hover:bg-teal-400 disabled:bg-darker disabled:text-snow/30 text-darker font-black rounded-xl transition shadow-lg">
-                                            {isMemberPasswordLoading ? <div className="loader !w-5 !h-5 !border-2 !border-darker mx-auto"></div> : (memberPasswordMode === 'set' ? 'حفظ' : 'دخول')}
-                                        </button>
-                                    </div>
-                                </form>
-                                <p className="text-snow/25 text-xs mt-6">
-                                    {memberPasswordMode === 'set'
-                                        ? 'هذه كلمه المرور التي ستستعملها للدخول لحسابك.. احتفظ بها :)'
-                                        : 'في حالة نسيان كلمة المرور. تواصل مع ليمو'
-                                    }
-                                </p>
-                            </div>
-                        </div>
-                    )}
 
                     {/* Journal Modal */}
                     {showJournalModal && !adminMode && currentUser && (
@@ -3094,7 +3133,8 @@
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         // Pull the shared roster first so avatars resolve to the central repo (with local
-        // fallback). Never block the app on it — render even if the fetch fails.
+        // fallback) and the e-mail gate has its list. Render even if the fetch fails — a saved
+        // login still opens, and the gate says why it cannot let a new one in.
         fetch(`${ROSTER_BASE}/members.json`, { cache: 'no-cache' })
             .then(r => { if (!r.ok) throw 0; return r.json(); })
             .then(data => {
@@ -3102,7 +3142,9 @@
                     if (m.dummy) return;
                     SLUG_BY_KEY[m.dbKey] = m.slug;
                     NAME_BY_SLUG[m.slug] = m.dbKey;
+                    if (m.email && m.active !== false) EMAIL_TO_KEY[cleanEmail(m.email)] = m.dbKey;
                 });
+                ROSTER.ok = true;
             })
             .catch(() => {})
             .finally(() => root.render(<App />));
