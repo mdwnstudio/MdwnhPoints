@@ -1,3 +1,11 @@
+@font-face {
+    font-family: 'Norsal';
+    src: url('./fonts/norsal.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,7 +13,7 @@
 body {
     background-color: #121214;
     color: #faf9f7;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Norsal', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 .glass-panel {

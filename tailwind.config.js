@@ -4,7 +4,7 @@ module.exports = {
   theme: {
     extend: {
         fontFamily: {
-            sans: ['Rubik', 'sans-serif'],
+            sans: ['Norsal', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
         },
         colors: {
             raisin: '#262626',
@@ -13,6 +13,8 @@ module.exports = {
             carmine: '#f04e3a',
             verdigris: '#3bb9ab',
             spanish: '#086fb6',
+            tangerine: '#f29a2e',
+            grape: '#713ab8',
             darker: '#1a1a1a'
         },
         transitionTimingFunction: {

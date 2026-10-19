@@ -6,10 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ستوديو مدونة - قائمة الانجاز</title>
 
-    <!-- Google Fonts: Rubik -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Norsal, self-hosted: one variable woff2 for every weight. Its @font-face is in input.css -->
+    <link rel="preload" href="./fonts/norsal.woff2" as="font" type="font/woff2" crossorigin>
 
     <!-- Tailwind Cached CSS -->
     <link href="./style.css" rel="stylesheet">
@@ -96,7 +94,7 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
         }
         .sabha-tab {
-            font-family: 'Rubik', sans-serif;
+            font-family: 'Norsal', system-ui, -apple-system, 'Segoe UI', sans-serif;
             font-weight: 700;
             font-size: 15px;
             letter-spacing: 0.3px;
@@ -128,7 +126,7 @@
 
         /* ---- Fajr panel header ---- */
         .sabha-fajr-title {
-            font-family: 'Rubik', sans-serif;
+            font-family: 'Norsal', system-ui, -apple-system, 'Segoe UI', sans-serif;
             font-weight: 900;
             font-size: 2rem;
             color: var(--sabha-blue);
@@ -159,7 +157,7 @@
             margin-bottom: 26px;
         }
         .sabha-subtab {
-            font-family: 'Rubik', sans-serif;
+            font-family: 'Norsal', system-ui, -apple-system, 'Segoe UI', sans-serif;
             font-weight: 700;
             font-size: 13px;
             padding: 8px 22px;
@@ -248,7 +246,7 @@
         .sbr-moved {
             display: inline-flex; align-items: center; gap: 8px;
             margin: -10px 0 22px; padding: 10px 20px; border-radius: 999px;
-            font-family: 'Rubik', sans-serif; font-weight: 900; font-size: 0.86rem;
+            font-family: 'Norsal', system-ui, -apple-system, 'Segoe UI', sans-serif; font-weight: 900; font-size: 0.86rem;
             color: var(--sabha-ink); text-decoration: none;
             background: linear-gradient(135deg, var(--sabha-blue-soft), var(--sabha-blue));
             box-shadow: 0 10px 30px rgba(126, 184, 212, 0.4);
