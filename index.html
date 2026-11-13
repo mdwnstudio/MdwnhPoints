@@ -845,12 +845,19 @@
                 const unsubscribe = onValue(playersRef, (snapshot) => {
                     setDbError(null);
                     const data = snapshot.val() || {};
-                    const parsedPlayers = Object.entries(data)
-                        .filter(([name]) => name !== "سراج" && name !== "نواف")
-                        .map(([name, info]) => ({
-                        name,
-                        points: info.totalPoints || 0
-                    })).sort((a, b) => b.points - a.points);
+                    // One row per person: a key written in a decomposed form
+                    // (ا + combining hamza, as macOS file names paste) is the
+                    // same name as its composed twin, so the two are merged
+                    // under the composed spelling, which is the one the
+                    // avatars are committed under.
+                    const merged = new Map();
+                    Object.entries(data).forEach(([raw, info]) => {
+                        const name = raw.normalize('NFC');
+                        if (name === "سراج" || name === "نواف") return;
+                        merged.set(name, (merged.get(name) || 0) + ((info && info.totalPoints) || 0));
+                    });
+                    const parsedPlayers = [...merged].map(([name, points]) => ({ name, points }))
+                        .sort((a, b) => b.points - a.points);
                     setPlayers(parsedPlayers);
                 }, (error) => {
                     setDbError(error.message);
