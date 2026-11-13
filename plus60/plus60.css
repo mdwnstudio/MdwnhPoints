@@ -1,0 +1,200 @@
+/* +60: the نقطة الماااسية show. Built by plus60.js; every moving part is moved
+   by transform and opacity only, so the browser composites instead of laying out. */
+
+.p60 {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: hidden;
+  background: transparent;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  contain: strict;
+}
+.p60.is-leaving { opacity: 0; transition: opacity .9s ease; }
+
+.p60 canvas { position: absolute; left: 0; top: 0; display: block; }
+.p60-bg { z-index: 0; }
+.p60-fx { z-index: 4; pointer-events: none; }
+
+.p60-world {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* The count, behind everything that moves in front of it */
+.p60-num {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  white-space: nowrap;
+  font-family: 'Norsal', system-ui, sans-serif;
+  font-weight: 900;
+  line-height: 1;
+  direction: ltr;
+  will-change: transform, opacity;
+  opacity: 0;
+}
+.p60-num span { display: block; }
+.p60-num__txt {
+  color: transparent;
+  -webkit-text-stroke: var(--p60-stroke, 2px) rgba(250, 249, 247, .96);
+  paint-order: stroke fill;
+}
+.p60-num__glow {
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  -webkit-text-stroke: calc(var(--p60-stroke, 2px) * 3) rgba(247, 208, 56, .9);
+  filter: blur(var(--p60-glow, 10px));
+  opacity: 0;
+  will-change: opacity;
+}
+
+/* The 60 sticker: a canvas drawn once, with its rim light and shadow baked in */
+.p60 .p60-sticker {
+  z-index: 3;
+  will-change: transform, opacity;
+  opacity: 0;
+}
+.p60 .p60-sticker.is-front { z-index: 6; }
+
+/* The avatar */
+.p60-av {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  will-change: transform;
+  opacity: 0;
+}
+.p60-av__disc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  padding: 4.5%;
+  background: conic-gradient(from 210deg, #f7d038, #f56549, #713ab8, #0084c1, #45c4b9, #f7d038);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .18), 0 10px 40px rgba(0, 0, 0, .45);
+}
+.p60-av__disc img,
+.p60-av__disc .p60-av__initial {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background: #1a1a1a;
+}
+.p60-av__initial {
+  display: grid !important;
+  place-items: center;
+  color: #faf9f7;
+  font: 900 calc(var(--p60-a, 160px) * .42)/1 'Norsal', system-ui, sans-serif;
+  background: #713ab8 !important;
+}
+/* light from the scene: a rim on the top left, shade on the bottom right */
+.p60-av__rim {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 120% at 28% 18%, rgba(255, 244, 214, .28), rgba(255, 244, 214, 0) 42%),
+    radial-gradient(120% 120% at 80% 92%, rgba(10, 12, 40, .38), rgba(10, 12, 40, 0) 48%);
+}
+.p60-av__flash {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+.p60-crown {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .45));
+}
+
+/* the echoed rows of the landed total: thinner and fainter than the count */
+.p60-echo {
+  z-index: 0;
+  color: transparent;
+  -webkit-text-stroke: calc(var(--p60-stroke, 2px) * .55) rgba(250, 249, 247, 1);
+}
+
+/* the studio's mark at the top of space */
+.p60-logo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, .55));
+}
+
+/* the screenshot line and متابعة, on a dark footing so the line reads over the echoes */
+.p60-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30%;
+  z-index: 7;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(to top, rgba(4, 5, 18, .94), rgba(4, 5, 18, .7) 45%, rgba(4, 5, 18, 0));
+}
+.p60-foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 0 16px max(26px, env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+.p60-note {
+  margin: 0;
+  direction: rtl;
+  text-align: center;
+  color: #faf9f7;
+  font: 700 clamp(14px, 3.9vw, 17px)/1.5 'Norsal', system-ui, sans-serif;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, .85);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.p60-go {
+  position: relative;
+  opacity: 0;
+  pointer-events: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 44px;
+  background: #f4c82b;
+  color: #1a1a1a;
+  font: 800 18px/1 'Norsal', system-ui, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(244, 200, 43, .35);
+  will-change: transform, opacity;
+}
+.p60-go:active { filter: brightness(.92); }
+.p60-go:focus-visible { outline: 3px solid #faf9f7; outline-offset: 3px; }

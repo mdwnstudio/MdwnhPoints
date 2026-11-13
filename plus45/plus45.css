@@ -1,0 +1,40 @@
+/* +45: what is its own. The rest (the avatar, the count, the logo, the footing,
+   the fade out) comes from plus60.css through the `p60` class it also wears. */
+
+/* the +45 sticker: the sun's face, a canvas drawn once */
+.p45 .p45-sticker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* composited into the dawn: the warm light comes from the sun on the right */
+.p45 .p60-av__rim {
+  background:
+    radial-gradient(120% 120% at 84% 20%, rgba(255, 226, 180, .4), rgba(255, 226, 180, 0) 44%),
+    radial-gradient(120% 120% at 16% 92%, rgba(60, 30, 110, .34), rgba(60, 30, 110, 0) 50%);
+}
+.p45-grade {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: linear-gradient(250deg, rgba(255, 170, 110, .24), rgba(120, 80, 190, .16));
+  mix-blend-mode: soft-light;
+}
+
+/* the ending sits on the bright dawn: a white fade under it, and the line in black */
+.p45 .p60-scrim {
+  background: linear-gradient(to top, rgba(255, 255, 255, .96), rgba(255, 255, 255, .78) 42%, rgba(255, 255, 255, 0));
+}
+.p45 .p60-note {
+  color: #1a1a1a;
+  text-shadow: none;
+}
+
+/* the white mark stays legible when a white cloud drifts behind it */
+.p45 .p60-logo { filter: drop-shadow(0 0 1px rgba(4, 52, 60, .7)) drop-shadow(0 2px 8px rgba(4, 52, 60, .5)); }

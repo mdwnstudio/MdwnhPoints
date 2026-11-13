@@ -12,6 +12,13 @@
     <!-- Tailwind Cached CSS -->
     <link href="./style.css" rel="stylesheet">
 
+    <!-- The +60 show: plain script, builds its own DOM (see plus60/plus60.js) -->
+    <link href="./plus60/plus60.css" rel="stylesheet">
+    <link href="./plus30/plus30.css" rel="stylesheet">
+    <script src="./plus60/plus60.js" defer></script>
+    <link href="./plus45/plus45.css" rel="stylesheet">
+    <script src="./plus45/plus45.js" defer></script>
+
     <!-- Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -34,6 +41,9 @@
         .cubic-bezier-wheel {
             transition-timing-function: cubic-bezier(0.15, 0, 0.1, 1) !important;
         }
+
+        /* the point buttons: six of them since +45 (the compiled Tailwind has no grid-cols-6) */
+        @media (min-width: 768px) { .pts-grid-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 
         .vertical-text {
             display: inline-block;
@@ -217,15 +227,44 @@
             background: linear-gradient(135deg, rgba(244, 200, 43, 0.14), rgba(240, 78, 58, 0.06));
             border: 1px solid rgba(244, 200, 43, 0.3);
         }
-        .badr-note img { width: 104px; height: auto; flex: 0 0 auto; filter: drop-shadow(0 6px 18px rgba(244, 200, 43, 0.35)); }
         .badr-note h3 { font-size: 1.2rem; font-weight: 900; color: #f4c82b; }
         .badr-note p { margin-top: 6px; font-size: 0.9rem; line-height: 1.85; color: rgba(250, 249, 247, 0.75); }
         .badr-note p b { color: #faf9f7; font-weight: 900; }
-        .badr-left {
-            display: inline-block; margin-top: 10px; padding: 4px 14px; border-radius: 999px; font-size: 0.75rem; font-weight: 900;
-            color: #f4c82b; background: rgba(244, 200, 43, 0.12); border: 1px solid rgba(244, 200, 43, 0.3);
+        @media (max-width: 520px) { .badr-note { text-align: center; } }
+
+        /* ---- «نتائج بدر»: the small pill and the saved final board ---- */
+        .badr-btn {
+            display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px 0 14px; border-radius: 999px;
+            font-size: 0.78rem; font-weight: 900; color: rgba(250, 249, 247, 0.8); cursor: pointer;
+            background: rgba(244, 200, 43, 0.08); border: 1px solid rgba(244, 200, 43, 0.28);
+            transition: background-color .2s, color .2s, transform .15s;
         }
-        @media (max-width: 520px) { .badr-note { flex-direction: column; text-align: center; } }
+        .badr-btn img { width: 22px; height: auto; }
+        .badr-btn:hover { background: rgba(244, 200, 43, 0.16); color: #faf9f7; }
+        .badr-btn:active { transform: scale(0.95); }
+        .badr-btn:focus-visible, .badr-x:focus-visible { outline: 2px solid #f4c82b; outline-offset: 2px; }
+        .badr-sheet { width: 100%; max-width: 520px; max-height: 88vh; display: flex; flex-direction: column; padding: 20px 16px 16px; }
+        .badr-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 0 4px; }
+        .badr-head img { width: 64px; height: auto; flex: 0 0 auto; filter: drop-shadow(0 4px 14px rgba(244, 200, 43, 0.35)); }
+        .badr-head h3 { font-size: 1.2rem; font-weight: 900; color: #f4c82b; }
+        .badr-head p { font-size: 0.8rem; font-weight: 700; color: rgba(250, 249, 247, 0.55); margin-top: 2px; }
+        .badr-x {
+            margin-inline-start: auto; align-self: flex-start; width: 36px; height: 36px; flex: 0 0 auto; border-radius: 999px;
+            border: 1px solid rgba(250, 249, 247, 0.12); background: rgba(0, 0, 0, 0.25); color: #faf9f7; font-size: 16px; cursor: pointer;
+        }
+        .badr-list { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 8px; padding: 2px; }
+        .badr-row {
+            display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 16px; border: 2px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.18);
+        }
+        .badr-row.me { background: rgba(244, 200, 43, 0.1); border-color: rgba(244, 200, 43, 0.5); }
+        .badr-rank { width: 30px; flex: 0 0 auto; text-align: center; font-weight: 900; font-size: 1.05rem; color: rgba(250, 249, 247, 0.6); }
+        .badr-av { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 999px; overflow: hidden; background: #262626; border: 2px solid rgba(255, 255, 255, 0.12); }
+        .badr-row.me .badr-av { border-color: #f4c82b; }
+        .badr-av img { width: 100%; height: 100%; object-fit: cover; }
+        .badr-name { flex: 1 1 auto; min-width: 0; font-weight: 700; font-size: 1.05rem; color: #faf9f7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .badr-pts { flex: 0 0 auto; font-weight: 900; font-size: 1.3rem; color: #f4c82b; }
+        .badr-msg { text-align: center; padding: 36px 0; font-weight: 700; color: rgba(250, 249, 247, 0.5); }
         .fake-row {
             background: rgba(0, 0, 0, 0.18); border-color: rgba(255, 255, 255, 0.05); color: rgba(250, 249, 247, 0.55);
             filter: blur(6px); opacity: 0.85; pointer-events: none; user-select: none; -webkit-user-select: none;
@@ -459,12 +498,12 @@
         // Premium Audio System for Rewards
         const playPointAudio = (points) => {
             try {
-                let soundNum = "1";
-                if (points === 10) soundNum = "2";
-                if (points === 20) soundNum = "3";
-                if (points === 30) soundNum = "4";
+                let file = "1.mp3?v=3";
+                if (points === 10) file = "2.mp3?v=3";
+                if (points === 20) file = "3%20Fajr.mp3";   // the فجر الكبرى +20 sound
+                if (points === 30) file = "4%20Fajr.mp3";   // the فجر الكبرى +30 sound
 
-                const audio = new Audio(`./sounds/${soundNum}.mp3?v=3`);
+                const audio = new Audio(`./sounds/${file}`);
                 audio.volume = 0.5;
                 audio.play().catch(err => console.error("Audio error:", err));
             } catch (e) {
@@ -523,9 +562,10 @@
             del(k) { try { localStorage.removeItem(k); } catch (e) {} },
         };
 
-        // خطة بدر الكبرى ends here (BADR_END in MdwnhLibrary/js/config.js). The board stays hidden
-        // until the plan's closing ceremony, then the points start over.
-        const BADR_END = new Date(2026, 9, 31, 23, 59, 59);
+        // خطة بدر الكبرى closed on Nov 13, 2026. Its final board was saved to `seasons/badr`
+        // (players + history) and every score started over at 0 for خطة فجر الكبرى. The board
+        // stays hidden until فجر's own closing ceremony; «نتائج بدر» shows the saved one.
+        const SEASON_SKIP = ["سراج", "نواف"];
 
         // The stand-in board shown while the real one is hidden. NOTHING here comes from the
         // database: the row count, the order and every number are made up, and the member's own
@@ -619,6 +659,25 @@
         // a password, which is the whole reason nobody was logging days here.
         // This page keeps the DATA and shows the result; it no longer writes to
         // sabha_fajr at all. See git history for the removed components.
+
+        // The +60 and +45 shows live outside React (plus60/, plus45/), on <body>, so that when this
+        // unmounts the show can still fade itself out. It runs from the first frame to
+        // متابعة on its own clock (the sound's), so nothing here re-renders while it plays.
+        const Plus60Stage = ({ show, onContinue }) => {
+            const host = useRef(null);
+            const cb = useRef(onContinue);
+            cb.current = onContinue;
+            useEffect(() => {
+                const mod = show.kind === 45 ? window.Plus45 : window.Plus60;   // the +45 and the +60 shows mount the same way
+                if (!mod || !host.current) { cb.current(); return; }
+                const run = mod.play(document.body, {
+                    name: show.user, avatar: avatarSrc(show.user), from: show.from, to: show.to,
+                    volume: show.kind === 45 ? 0.55 : 0.6, onContinue: () => cb.current(),
+                });
+                return () => run.destroy();
+            }, []);
+            return <div ref={host}></div>;
+        };
 
         function App() {
             const [db, setDb] = useState(null);
@@ -719,6 +778,7 @@
             const [showSparkles, setShowSparkles] = useState(false);
             const [sparklePositions, setSparklePositions] = useState([]);
             const [isPageSuckingIn, setIsPageSuckingIn] = useState(false);
+            const [celebrationCard, setCelebrationCard] = useState(null);   // the +30 card, after the celebration
             const [pointsPopAnim, setPointsPopAnim] = useState(false);
 
             const [special60, setSpecial60] = useState({ isActive: false, phase: null, showContinue: false, user: null });
@@ -877,6 +937,9 @@
             // the normal point-award sequence for its sticker value.
             const claimNow = async (claim) => {
                 if (claimBusy || !claim) return;
+                // A +60 claim plays the +60 show after the await below: unlock its sound now, on the press.
+                if (Number(claim.points) === 60 && window.Plus60) window.Plus60.unlock();
+                if (Number(claim.points) === 45 && window.Plus45) window.Plus45.unlock();
                 setClaimBusy(true);
                 const key = claim._key || claim.taskId;
                 const ck = (() => { try { return currentUser.normalize('NFC'); } catch (e) { return currentUser; } })();
@@ -927,7 +990,7 @@
             //  - isPageSuckingIn: set synchronously before celebration, covers the 700 ms gap
             useEffect(() => {
                 if (!pendingPromotion) return;
-                if (celebration !== null || special60.isActive || isPageSuckingIn || isAddingPoints) return;
+                if (celebration !== null || celebrationCard !== null || special60.isActive || isPageSuckingIn || isAddingPoints) return;
                 const tc = pendingPromotion;
                 const timer = setTimeout(() => {
                     setPromotionNewTier(tc);
@@ -946,7 +1009,7 @@
                     }, 200);
                 }, 2000);
                 return () => clearTimeout(timer);
-            }, [pendingPromotion, celebration, special60.isActive, isPageSuckingIn, isAddingPoints]);
+            }, [pendingPromotion, celebration, celebrationCard, special60.isActive, isPageSuckingIn, isAddingPoints]);
 
             // Reset scroll to top when changing "pages" (user/admin login/logout)
             useEffect(() => {
@@ -979,6 +1042,42 @@
                 setGateEmail("");
                 setGateMsg("");
             };
+
+            // In-app confirm / prompt. The browser's own confirm() and prompt() aren't shown
+            // everywhere (the Claude app's browser, some installed web apps) and then quietly
+            // answer "cancel", so a delete or an edit did nothing. Resolves true/false, or the
+            // typed text / null when `input` is set.
+            const [ask, setAsk] = useState(null);
+            const askUser = (message, { input = false, value = '', okLabel = 'تأكيد', danger = false } = {}) =>
+                new Promise(resolve => setAsk({ message, input, value: String(value), okLabel, danger, resolve }));
+            const closeAsk = (result) => { if (ask) ask.resolve(result); setAsk(null); };
+
+            // «نتائج بدر»: the board as it stood when خطة بدر الكبرى closed (`seasons/badr/players`).
+            // Read once, the first time it is opened, then kept. badrBoard: null = not loaded yet,
+            // 'error' = the read failed, otherwise the rows (ties share a rank).
+            const [badrOpen, setBadrOpen] = useState(false);
+            const [badrBoard, setBadrBoard] = useState(null);
+            const openBadr = () => {
+                setBadrOpen(true);
+                if (Array.isArray(badrBoard) && badrBoard.length) return;   // an empty read is asked again
+                setBadrBoard(null);
+                get(ref(db, 'seasons/badr/players')).then(snap => {
+                    const data = snap.val() || {};
+                    const rows = Object.entries(data)
+                        .map(([name, pts]) => ({ name, points: Number(pts) || 0 }))
+                        .filter(r => r.points > 0 && !SEASON_SKIP.includes(r.name))
+                        .sort((a, b) => b.points - a.points);
+                    let rank = 0, last = null;
+                    rows.forEach((r, i) => { if (r.points !== last) { rank = i + 1; last = r.points; } r.rank = rank; });
+                    setBadrBoard(rows);
+                }).catch(() => setBadrBoard('error'));
+            };
+            useEffect(() => {
+                if (!badrOpen) return;
+                const onKey = (e) => { if (e.key === 'Escape') setBadrOpen(false); };
+                window.addEventListener('keydown', onKey);
+                return () => window.removeEventListener('keydown', onKey);
+            }, [badrOpen]);
 
             const showToast = (message) => {
                 setToast({ message, visible: true });
@@ -1031,7 +1130,9 @@
                 }
             };
 
-            const triggerCelebration = (person, points, silent = false) => {
+            // withCard: the +30 card («لقد حصلت على +30 نقطة!») comes up just before the
+            // celebration hides, so it is already there when it does. The wheel has its own card.
+            const triggerCelebration = (person, points, silent = false, withCard = false) => {
                 if (!silent) playPointAudio(points);
                 setIsPageSuckingIn(true);
                 setTimeout(() => {
@@ -1051,8 +1152,9 @@
                         setSparklePositions(newSparkles);
                         setShowSparkles(true);
                     }, 2000);
-                    setTimeout(() => setIsCelebrationClosing(true), 5200);
-                    setTimeout(() => { setCelebration(null); setShowSparkles(false); }, 6000);
+                    if (withCard) setTimeout(() => setCelebrationCard({ user: person, points: 30 }), 5800);
+                    setTimeout(() => setIsCelebrationClosing(true), 6200);
+                    setTimeout(() => { setCelebration(null); setShowSparkles(false); }, 7000);
                 }, 700);
             };
 
@@ -1092,7 +1194,7 @@
                     const shouldConfetti = !silent && !noConfetti;
 
                     if (!silent && !adminMode && amountNum === 30) {
-                        triggerCelebration(person, 30, skipCelebrationSound);
+                        triggerCelebration(person, 30, skipCelebrationSound, true);
                     } else if (shouldConfetti) {
                         if (!silent) playPointAudio(amountNum);
                         triggerConfetti(amountNum);
@@ -1309,7 +1411,7 @@
             const ARABIC_MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 
             const performDeleteJournal = async (id) => {
-                if (!confirm("هل أنت متأكد من رغبتك في حذف هذا العمل؟")) return;
+                if (!(await askUser("هل أنت متأكد من رغبتك في حذف هذا العمل؟", { okLabel: 'حذف', danger: true }))) return;
                 try {
                     const journalRef = ref(db, 'history/' + id);
                     const snapshot = await get(journalRef);
@@ -1328,15 +1430,14 @@
                         await remove(journalRef);
                     }
 
-                    setToast("تم حذف العمل وتحديث الرصيد!");
-                    setTimeout(() => setToast(null), 3500);
+                    showToast("تم حذف العمل وتحديث الرصيد!");
                 } catch (error) {
                     alert("تعذر حذف العمل: " + error.message);
                 }
             };
 
             const performAdminDeleteHistoryEntry = async (log) => {
-                if (!confirm(`هل أنت متأكد من حذف هذا الإنجاز لـ ${log.user}؟ سيتم خصم ${log.amount} نقطة من رصيده.`)) return;
+                if (!(await askUser(`هل أنت متأكد من حذف هذا الإنجاز لـ ${log.user}؟ سيتم خصم ${log.amount} نقطة من رصيده.`, { okLabel: 'حذف', danger: true }))) return;
                 try {
                     // 1. Update Player Score
                     const playerRef = ref(db, `players/${log.user}/totalPoints`);
@@ -1355,7 +1456,7 @@
             };
 
             const performAdminEditHistoryPoints = async (log) => {
-                const newPointsStr = prompt(`تعديل نقاط ${log.user}\nالنقاط الحالية: ${log.amount}\nأدخل النقاط الجديدة:`, log.amount);
+                const newPointsStr = await askUser(`تعديل نقاط ${log.user}\nالنقاط الحالية: ${log.amount}\nأدخل النقاط الجديدة:`, { input: true, value: log.amount, okLabel: 'حفظ' });
                 if (newPointsStr === null) return;
                 const newPoints = parseInt(newPointsStr);
                 if (isNaN(newPoints)) return alert("يرجى إدخال رقم صحيح.");
@@ -1411,51 +1512,24 @@
                 const person = adminMode && targetUser ? targetUser : currentUser;
                 if (!person) return;
 
-                if (amount === 60) {
+                if (amount === 60 || amount === 45) {
+                    // The +60 show (plus60/plus60.js) or the +45 one (plus45/plus45.js). Its sound may
+                    // only start from this press, so the audio is unlocked here before anything waits;
+                    // the loading circle on the button covers the download of the sound, the pictures
+                    // and the font.
+                    const show = amount === 45 ? window.Plus45 : window.Plus60;
+                    if (show) show.unlock();
                     setIsAddingPoints(true);
-                    setAddingPointsLabel(60);
-                    
-                    // Preload all assets needed for the +60 animation
-                    const preloadAssets = async () => {
-                        const assets = [
-                            { type: 'audio', src: './sounds/5.mp3?v=3' },
-                            { type: 'image', src: './Crown.png' },
-                            { type: 'image', src: './Background.png' },
-                            { type: 'image', src: './GoldCrown.png' }
-                        ];
+                    setAddingPointsLabel(amount);
+                    const before = players.find(p => p.name === person)?.points;
+                    const from = typeof before === 'number' ? before : null;
+                    const ready = show ? show.preload({ avatar: avatarSrc(person) }) : Promise.resolve(null);
 
-                        const promises = assets.map(asset => {
-                            return new Promise((resolve) => {
-                                if (asset.type === 'audio') {
-                                    const audio = new Audio(asset.src);
-                                    audio.oncanplaythrough = () => resolve(audio);
-                                    audio.onerror = () => resolve(null);
-                                    // Timeout for audio loading
-                                    setTimeout(() => resolve(audio), 5000);
-                                } else {
-                                    const img = new Image();
-                                    img.onload = () => resolve(img);
-                                    img.onerror = () => resolve(null);
-                                    img.src = asset.src;
-                                }
-                            });
-                        });
+                    Promise.all([ready, new Promise(resolve => setTimeout(resolve, 300))]).then(() => {
+                        setSpecial60({ isActive: true, phase: 'show', kind: amount, user: person, from, to: from == null ? null : from + amount });
+                        setIsAddingPoints(false);
+                        setAddingPointsLabel(null);
 
-                        // Wait for all assets OR a global timeout of 8 seconds, PLUS a mandatory minimum wait of 300ms
-                        const minWaitPromise = new Promise(resolve => setTimeout(resolve, 300));
-                        const assetLoadPromise = Promise.race([
-                            Promise.all(promises),
-                            new Promise(resolve => setTimeout(() => resolve([]), 8000))
-                        ]);
-
-                        const [results] = await Promise.all([assetLoadPromise, minWaitPromise]);
-                        const audioAsset = results.find(a => a instanceof Audio) || new Audio('./sounds/5.mp3?v=3');
-                        return audioAsset;
-                    };
-
-                    preloadAssets().then((audio) => {
-                        setSpecial60({ isActive: true, phase: 'loading', showContinue: false, showAvatarCrown: false, cameraShake: false, user: person });
-                        
                         // Add points immediately
                         const add60PointsToDb = async () => {
                             try {
@@ -1465,7 +1539,7 @@
 
                                 await set(playerRef, {
                                     ...currentData,
-                                    totalPoints: (currentData.totalPoints || 0) + 60,
+                                    totalPoints: (currentData.totalPoints || 0) + amount,
                                     lastUpdated: serverTimestamp()
                                 });
 
@@ -1474,7 +1548,7 @@
                                     const historyDbRef = ref(db, 'history');
                                     await push(historyDbRef, {
                                         user: person,
-                                        amount: 60,
+                                        amount: amount,
                                         note: options.note || achievementNote || "",
                                         timestamp: Date.now(),
                                         isWheel: false,
@@ -1487,46 +1561,6 @@
                             }
                         };
                         add60PointsToDb();
-
-                        audio.volume = 0.5;
-                        
-                        const startAnimation = () => {
-                            audio.play().catch(e => console.log("Audio play error", e));
-                        };
-                        
-                        audio.onplay = () => {
-                            setSpecial60(prev => ({ ...prev, phase: 'black1' }));
-                            
-                            setTimeout(() => setSpecial60(prev => ({ ...prev, phase: 'crown' })), 3500);
-                            setTimeout(() => setSpecial60(prev => ({ ...prev, phase: 'black2' })), 6500);
-                            
-                            setTimeout(() => {
-                                setSpecial60(prev => ({ ...prev, phase: 'celebration' }));
-                                triggerConfetti(60); 
-                                const newSparkles = [...Array(40)].map(() => {
-                                    let top, left;
-                                    do {
-                                        top = Math.random() * 100;
-                                        left = Math.random() * 100;
-                                    } while (Math.sqrt(Math.pow(top - 50, 2) + Math.pow(left - 50, 2)) < 30);
-                                    return { top, left, delay: Math.random() * 0.5, speed: 2.5 + Math.random() * 2 };
-                                });
-                                setSparklePositions(newSparkles);
-                                setShowSparkles(true);
-                                
-                                // Crown falls on avatar at exactly 12 seconds
-                                setTimeout(() => setSpecial60(prev => ({ ...prev, showAvatarCrown: true })), 2300);
-                                // Screen shake fires when the crown actually lands (crown-fall duration later)
-                                setTimeout(() => setSpecial60(prev => ({ ...prev, cameraShake: true })), 2560);
-                                setTimeout(() => {
-                                    setSpecial60(prev => ({ ...prev, showContinue: true }));
-                                    setIsAddingPoints(false);
-                                    setAddingPointsLabel(null);
-                                }, 8500);
-                            }, 9500);
-                        };
-
-                        startAnimation();
                     });
                 } else {
                     performAddPoints(amount, person, options);
@@ -1764,7 +1798,6 @@
             // Members get the stand-in board; the leader always sees the real one.
             const hideBoard = boardHidden && !adminMode;
             const myBoardPoints = players.find(p => p.name === currentUser)?.points ?? 0;
-            const badrDaysLeft = Math.max(Math.ceil((BADR_END - Date.now()) / 864e5), 0);
             const activeTierNum = viewedTier !== null ? viewedTier : (userTierNum || 1);
 
             // High tiers (فضيون / ذهبيون) default to the "عرض الكل" view instead of "مستواي" —
@@ -1781,6 +1814,59 @@
 
             return (
                 <div className="relative min-h-screen overflow-x-hidden">
+                    {/* The in-app confirm / prompt (askUser) */}
+                    {ask && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ zIndex: 1200 }} onClick={() => closeAsk(ask.input ? null : false)}>
+                            <div className="glass-panel w-full max-w-sm text-center animate-explosiveIn" style={{ padding: 24 }} onClick={e => e.stopPropagation()}>
+                                <p className="text-snow font-bold leading-relaxed" style={{ fontSize: 18, whiteSpace: 'pre-line', margin: '0 0 20px' }}>{ask.message}</p>
+                                {ask.input && (
+                                    <input id="ask-input" type="number" inputMode="numeric" autoFocus defaultValue={ask.value}
+                                        onKeyDown={e => { if (e.key === 'Enter') closeAsk(e.target.value); if (e.key === 'Escape') closeAsk(null); }}
+                                        className="w-full bg-darker text-snow font-black text-center rounded-xl"
+                                        style={{ fontSize: 22, padding: 12, marginBottom: 20, border: '1px solid rgba(250,249,247,0.12)', outline: 'none' }} />
+                                )}
+                                <div style={{ display: 'flex', gap: 12 }}>
+                                    <button onClick={() => closeAsk(ask.input ? document.getElementById('ask-input').value : true)}
+                                        className="rounded-xl font-black" style={{ flex: 1, padding: '12px 0', fontSize: 18, border: 0, background: ask.danger ? '#f04e3a' : '#f4c82b', color: ask.danger ? '#fff' : '#1a1a1a' }}>{ask.okLabel}</button>
+                                    <button onClick={() => closeAsk(ask.input ? null : false)}
+                                        className="rounded-xl font-bold bg-darker text-snow" style={{ flex: 1, padding: '12px 0', fontSize: 18, border: '1px solid rgba(250,249,247,0.12)' }}>إلغاء</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* «نتائج بدر»: the saved final board of خطة بدر الكبرى */}
+                    {badrOpen && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md p-4" style={{ zIndex: 1150 }} onClick={() => setBadrOpen(false)}>
+                            <div role="dialog" aria-modal="true" aria-label="نتائج خطة بدر الكبرى" className="glass-panel badr-sheet animate-explosiveIn" onClick={e => e.stopPropagation()}>
+                                <div className="badr-head">
+                                    <img src="./badr-logo.png" alt="" width="160" height="141" />
+                                    <div className="min-w-0">
+                                        <h3>نتائج خطة بدر الكبرى</h3>
+                                        <p>الترتيب النهائي كما أُعلن في الحفل الختامي</p>
+                                    </div>
+                                    <button className="badr-x" onClick={() => setBadrOpen(false)} aria-label="إغلاق" autoFocus>✕</button>
+                                </div>
+                                {badrBoard === null ? (
+                                    <div className="badr-msg"><div className="loader" style={{ margin: '0 auto' }}></div></div>
+                                ) : badrBoard === 'error' || badrBoard.length === 0 ? (
+                                    <div className="badr-msg">تعذّر تحميل النتائج</div>
+                                ) : (
+                                    <div className="badr-list">
+                                        {badrBoard.map(r => (
+                                            <div key={r.name} className={`badr-row ${r.name === currentUser ? 'me' : ''}`}>
+                                                <div className="badr-rank">{r.rank <= 3 ? ['🥇', '🥈', '🥉'][r.rank - 1] : toArabicNum(r.rank)}</div>
+                                                <div className="badr-av"><img src={avatarSrc(r.name)} alt="" loading="lazy" onError={(e) => { e.target.src = AVATAR_FALLBACK; }} /></div>
+                                                <span className="badr-name">{r.name}</span>
+                                                <span className="badr-pts">{r.points}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Toast - rendered at top level so it's always fixed above everything */}
                     {toast && (
                         <div className="fixed bottom-10 inset-x-0 z-[999] flex justify-center pointer-events-none px-4">
@@ -1930,17 +2016,9 @@
                                     </div>
                                 </header>
 
-                                {/* Tab switcher — user panel only (not admin); فجر-only user has just the one tab */}
-                                {!adminMode && !isFajrOnlyUser && (
-                                    <div className="flex justify-center -mt-2">
-                                        <div className="sabha-tabbar">
-                                            <button className={`sabha-tab points ${userTab === 'points' ? 'is-active' : ''}`} onClick={() => setUserTab('points')}>نقاط</button>
-                                            <button className={`sabha-tab fajr ${userTab === 'fajr' ? 'is-active' : ''} ${sabhaTab === 'females' ? 'female' : ''}`} onClick={() => { setUserTab('fajr'); setSabhaTab(SABHA_FEMALE_SET.includes(currentUser) ? 'females' : 'all'); }}>صحبة الفجر</button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Points tab (always visible for admin, toggled for regular users; never for the فجر-only user) */}
+                                {/* The نقاط / صحبة الفجر switcher is gone: members see their points; the
+                                    فجر-only user still opens straight on صحبة الفجر (userTab is set at login). */}
+                                {/* Points tab (always visible for admin and members; never for the فجر-only user) */}
                                 {(adminMode || userTab === 'points') && !isFajrOnlyUser && (<>
 
                                 {/* Achievements block: compact header sits OUTSIDE / above the panel (member view) */}
@@ -2006,7 +2084,7 @@
                                             />
                                         </div>
 
-                                        <div className={`grid grid-cols-3 md:grid-cols-5 gap-4 max-w-5xl mx-auto transition-all duration-500 ${achievementNote.trim().length === 0 ? 'grayscale opacity-50' : ''}`}>
+                                        <div className={`grid grid-cols-3 pts-grid-6 gap-4 max-w-5xl mx-auto transition-all duration-500 ${achievementNote.trim().length === 0 ? 'grayscale opacity-50' : ''}`}>
                                             <button
                                                 disabled={isAddingPoints || special60.isActive || achievementNote.trim().length === 0} onClick={() => addPoints(5)}
                                                 className="relative overflow-hidden py-8 rounded-[2.5rem] font-black text-3xl md:text-4xl transition-all shadow-lg text-snow flex items-center justify-center bg-verdigris hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(59,185,171,0.5)] active:scale-95 disabled:opacity-75 disabled:hover:translate-y-0 disabled:hover:shadow-none"
@@ -2032,8 +2110,15 @@
                                                 {isAddingPoints && addingPointsLabel === 30 ? <div className="loader"></div> : '+30'}
                                             </button>
                                             <button
+                                                disabled={isAddingPoints || special60.isActive || achievementNote.trim().length === 0} onClick={() => addPoints(45)}
+                                                className="relative overflow-hidden py-8 rounded-[2.5rem] font-black text-3xl md:text-4xl transition-all shadow-lg text-snow flex items-center justify-center hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(244,200,43,0.5)] active:scale-95 disabled:opacity-75 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                                                style={{ background: '#f29a2e' }}
+                                            >
+                                                {isAddingPoints && addingPointsLabel === 45 ? <div className="loader"></div> : '+45'}
+                                            </button>
+                                            <button
                                                 disabled={isAddingPoints || special60.isActive || achievementNote.trim().length === 0} onClick={() => addPoints(60)}
-                                                className="relative overflow-hidden py-8 rounded-[2.5rem] font-black text-3xl md:text-4xl transition-all shadow-lg text-snow flex items-center justify-center bg-[#8a7ee2] hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(138,126,226,0.7)] active:scale-95 disabled:opacity-75 disabled:hover:translate-y-0 disabled:hover:shadow-none col-span-2 md:col-span-1"
+                                                className="relative overflow-hidden py-8 rounded-[2.5rem] font-black text-3xl md:text-4xl transition-all shadow-lg text-snow flex items-center justify-center bg-[#8a7ee2] hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(138,126,226,0.7)] active:scale-95 disabled:opacity-75 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                                             >
                                                 {isAddingPoints && addingPointsLabel === 60 ? <div className="loader"></div> : '+60'}
                                             </button>
@@ -2067,7 +2152,10 @@
                                 {/* Leaderboard header — sits OUTSIDE / above the panel, compact (member view) */}
                                 {!adminMode && (
                                     <div className="flex items-center justify-between mb-3 flex-wrap gap-3 px-2">
-                                        <h2 className="text-2xl font-black text-snow drop-shadow-md">🏆 المتميزون</h2>
+                                        <div className="flex items-center gap-3 flex-wrap">
+                                            <h2 className="text-2xl font-black text-snow drop-shadow-md">🏆 المتميزون</h2>
+                                            <button className="badr-btn" onClick={openBadr}><img src="./badr-logo.png" alt="" width="160" height="141" />نتائج بدر</button>
+                                        </div>
                                         <div className={hideBoard ? "hidden" : "flex gap-2"}>
                                             <button onClick={() => { setLeaderboardView('tier'); setViewedTier(null); }}
                                                 className={`px-3 py-1.5 rounded-full text-xs font-black transition-all border ${leaderboardView === 'tier' && viewedTier === null ? 'bg-saffron/20 text-saffron border-saffron/40' : 'bg-darker text-snow/50 border-snow/10 hover:text-snow/80'}`}>
@@ -2087,13 +2175,9 @@
                                     /* ── HIDDEN BOARD — one list, every row but yours a blurred stand-in ── */
                                     <div className="max-w-4xl mx-auto">
                                         <div className="badr-note">
-                                            <img src="./badr-logo.png" alt="خطة بدر الكبرى" width="160" height="141" />
                                             <div className="min-w-0">
                                                 <h3>المراكز مخفية حتى الحفل الختامي</h3>
-                                                <p>نقاطك ما زالت تُحتسب كما هي، لكننا أخفينا الأسماء والمراكز إلى أن تنتهي <b>خطة بدر الكبرى</b>. سنكشف الترتيب كاملًا في الحفل الختامي للخطة، وبعده تبدأ النقاط من جديد.</p>
-                                                {badrDaysLeft > 0 && (
-                                                    <span className="badr-left">{badrDaysLeft === 1 ? 'تبقّى يوم واحد' : badrDaysLeft === 2 ? 'تبقّى يومان' : badrDaysLeft <= 10 ? `تبقّت ${toArabicNum(badrDaysLeft)} أيام` : `تبقّى ${toArabicNum(badrDaysLeft)} يومًا`} على ختام الخطة</span>
-                                                )}
+                                                <p>نقاطك تُحتسب كما هي، لكننا أخفينا الأسماء والمراكز حتى ختام <b>خطة فجر الكبرى</b>. بدأت النقاط من الصفر مع بداية الخطة، وسنكشف الترتيب كاملًا في حفلها الختامي.</p>
                                             </div>
                                         </div>
                                         <div className="space-y-3">
@@ -2126,6 +2210,7 @@
                                         {adminMode && (
                                             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                                                 <h2 className="text-2xl font-black text-snow drop-shadow-md">🏆 المتميزون</h2>
+                                                <button className="badr-btn" onClick={openBadr}><img src="./badr-logo.png" alt="" width="160" height="141" />نتائج بدر</button>
                                             </div>
                                         )}
 
@@ -2570,66 +2655,35 @@
                         </div>
                     )}
 
-                    {/* Celebration Overlay */}
+                    {/* Celebration Overlay: the +30 (plus30/plus30.css). The avatar pops, the +30
+                        sticker slams onto it, the words follow, then a slow idle until it leaves. */}
                     {celebration && (
-                        <div className={`fixed inset-0 z-[1000] flex flex-col items-center justify-center bg-black/95 backdrop-blur-2xl ${isCelebrationClosing ? 'animate-fade-out' : 'animate-fade-in'}`}>
-                            {/* Cinematic Background Avatar - 5% Opacity Quick Pan */}
-                            <div className="absolute inset-0 pointer-events-none overflow-hidden z-[-1] opacity-[0.05]"
-                                style={{
-                                    WebkitMaskImage: 'radial-gradient(circle, black 30%, transparent 80%)',
-                                    maskImage: 'radial-gradient(circle, black 30%, transparent 80%)'
-                                }}
-                            >
-                                <img
-                                    src={avatarSrc(celebration.user)}
-                                    alt="Background Avatar"
-                                    className="w-full h-full object-cover animate-pan-quick blur-sm"
-                                />
-                            </div>
+                        <div className={`c30 ${isCelebrationClosing ? 'is-leaving' : ''}`}>
+                            <div className="c30-rays-in"><div className="c30-rays"></div></div>
+                            <div className="c30-flash"></div>
+                            <img className="c30-logo" src="./plus60/logo.webp" alt="" />
 
-                            {/* Explosion Flash Overlay */}
-                            <div className="absolute inset-0 bg-white z-[1001] pointer-events-none animate-white-flash opacity-0"></div>
-
-                            <div className="absolute top-10 flex flex-col items-center animate-logo-in">
-                                <img
-                                    src="./Logo.png"
-                                    alt="Logo"
-                                    className="w-24 sm:w-32 mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] invert brightness-200"
-                                />
-                            </div>
-
-                            <div className="flex flex-col items-center text-center px-6 animate-explosiveIn">
-                                <div className="w-40 h-40 sm:w-56 sm:h-56 mb-8 relative">
-                                    {/* Brand Glow Backdrop - 200% Larger & More Transparent */}
-                                    <div className="absolute inset-[-120px] rounded-full blur-[100px] opacity-40 animate-pulse"
-                                        style={{
-                                            background: 'conic-gradient(#F4C82B, #F04E3A, #086FB6, #1FA8A1, #F4C82B)'
-                                        }}
-                                    ></div>
-
-                                    <div className="relative w-full h-full p-[6px] rounded-full overflow-hidden shadow-[0_0_40px_rgba(244,200,43,0.3)]">
-                                        <div
-                                            className="absolute inset-0 animate-spinSlow"
-                                            style={{
-                                                background: 'conic-gradient(from 0deg, #F4C82B, #F04E3A, #F4C82B, #086FB6, #1FA8A1, #F4C82B)',
-                                                backgroundSize: '200% 200%'
-                                            }}
-                                        ></div>
-                                        <div className="relative bg-darker rounded-full p-1 w-full h-full">
-                                            <div className="w-full h-full rounded-full overflow-hidden border-4 border-darker">
-                                                <img
-                                                    src={avatarSrc(celebration.user)}
-                                                    alt={celebration.user}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
+                            <div className="c30-stage">
+                                <div className="c30-glow"></div>
+                                <div className="c30-ring"></div>
+                                <div className="c30-ring c30-ring--late"></div>
+                                <div className="c30-float">
+                                    <div className="c30-av">
+                                        <img src={avatarSrc(celebration.user)} alt={celebration.user} />
+                                    </div>
+                                    <div className="c30-badge">
+                                        <div className="c30-badge__wob">
+                                            <img src="./points-stickers/30.webp" alt="+30" />
                                         </div>
                                     </div>
                                 </div>
-
-                                <h2 className="text-4xl sm:text-6xl font-black text-white mb-4 drop-shadow-lg animate-explosiveIn">أحسنتم عملاً</h2>
-                                <p className="text-xl sm:text-2xl text-snow/90 mb-6 drop-shadow-md animate-[slideUpFade_1s_ease-out_0.2s_both]">نشكركم على جهدكم 🤍</p>
                             </div>
+
+                            <h2 className="c30-title">
+                                <span style={{ '--i': 0 }}>أحسنتم</span>
+                                <span className="c30-hi" style={{ '--i': 1 }}>عملاً</span>
+                            </h2>
+                            <p className="c30-sub">نشكركم على جهدكم 🤍</p>
 
                             {/* White Sparkles Overlay - Appears after 3s */}
                             {showSparkles && (
@@ -2652,6 +2706,31 @@
                                     ))}
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {/* The +30 card: over the celebration as it hides (z above it), so when the
+                        celebration is gone the card is already there. Blue, like the +30 sticker. */}
+                    {celebrationCard && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md animate-explosiveIn p-4" style={{ zIndex: 1001 }}>
+                            <div className="glass-panel w-full max-w-sm p-8 text-center border-2" style={{ borderColor: '#0084c1', boxShadow: '0 0 100px rgba(0,132,193,0.3)' }}>
+                                <div className="relative w-32 h-32 mx-auto mb-6">
+                                    <div className="w-full h-full rounded-full overflow-hidden border-4" style={{ borderColor: '#0084c1' }}>
+                                        <img src={avatarSrc(celebrationCard.user)} alt={celebrationCard.user} className="w-full h-full object-cover" />
+                                    </div>
+                                    <img src="./points-stickers/30.webp" alt="+30" className="absolute" style={{ width: '52%', right: '-16%', bottom: '-10%', transform: 'rotate(-12deg)', filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.45))' }} />
+                                </div>
+                                <h3 className="text-4xl font-black mb-4" style={{ color: '#f7d038' }}>مبروووك! 🎉</h3>
+                                <div className="bg-darker p-6 rounded-2xl border border-snow/10 mb-8">
+                                    <p className="text-2xl font-bold text-snow leading-relaxed">لقد حصلت على +30 نقطة!</p>
+                                </div>
+                                <p className="text-snow/50 text-sm mb-6 font-medium animate-pulse">قم بالتقاط الشاشة وارسلها في التوثيق 📸</p>
+                                <button
+                                    onClick={() => setCelebrationCard(null)}
+                                    className="w-full py-4 rounded-xl font-black text-xl transition-all shadow-lg text-white"
+                                    style={{ background: '#0084c1' }}
+                                >تم</button>
+                            </div>
                         </div>
                     )}
 
@@ -2815,7 +2894,7 @@
                                                     {activeWheelType === 'PUNISHMENT' ? wheelResult : `لقد حصلت على +${wheelResult} نقطة!`}
                                                 </p>
                                             </div>
-                                            <p className="text-snow/50 text-sm mb-6 font-medium animate-pulse">قم بالتقاط الشاشة وارسلها للمشرف 📸</p>
+                                            <p className="text-snow/50 text-sm mb-6 font-medium animate-pulse">قم بالتقاط الشاشة وارسلها في التوثيق 📸</p>
                                             <button
                                                 onClick={() => { setShowWheelModal(false); setShowWheelResultOverlay(false); setActiveWheelType(null); }}
                                                 className={`w-full py-4 rounded-xl font-black text-xl transition-all shadow-lg ${activeWheelType === 'PUNISHMENT' ? 'bg-darker text-snow border border-carmine hover:bg-carmine' : 'bg-verdigris text-darker hover:bg-teal-400'}`}
@@ -2874,151 +2953,10 @@
                         </div>
                     )}
 
-                    {/* Special 60 Points Cinematic Overlay */}
-                    {special60.isActive && special60.phase !== 'loading' && (
-                        <div className={`fixed inset-0 z-[1000] bg-black text-snow overflow-hidden flex flex-col items-center justify-center ${special60.phase === 'black1' || special60.phase === 'black2' || special60.phase === 'crown' || special60.phase === 'celebration' ? '' : 'animate-fade-in'}`}>
-                            
-                            {special60.phase === 'crown' && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-black">
-                                    <div className="absolute inset-0">
-                                        <img src="./Background.png" alt="" className="w-full h-full object-cover" />
-                                    </div>
-                                    <div className="relative z-10 animate-crown-snap">
-                                        <img src="./Crown.png" alt="Crown" className="w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow-[0_0_60px_rgba(244,200,43,0.6)]" />
-                                    </div>
-                                </div>
-                            )}
-
-                            {special60.phase === 'celebration' && (
-                                <div className={`absolute inset-0 flex flex-col items-center justify-center bg-black/95 backdrop-blur-2xl animate-fade-in ${special60.cameraShake ? 'animate-camera-shake' : ''}`}>
-                                    {/* Cinematic Background Avatar - 5% Opacity Quick Pan */}
-                                    <div className="absolute inset-0 pointer-events-none overflow-hidden z-[-1] opacity-[0.05]"
-                                        style={{
-                                            WebkitMaskImage: 'radial-gradient(circle, black 30%, transparent 80%)',
-                                            maskImage: 'radial-gradient(circle, black 30%, transparent 80%)'
-                                        }}
-                                    >
-                                        <img
-                                            src={avatarSrc(special60.user)}
-                                            alt="Background Avatar"
-                                            className="w-full h-full object-cover animate-pan-quick blur-sm"
-                                        />
-                                    </div>
-
-                                    {/* Explosion Flash Overlay */}
-                                    <div className="absolute inset-0 bg-white z-[1001] pointer-events-none animate-white-flash opacity-0"></div>
-
-                                    <div className="absolute top-10 flex flex-col items-center animate-logo-in">
-                                        <img
-                                            src="./Logo.png"
-                                            alt="Logo"
-                                            className="w-24 sm:w-32 mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] invert brightness-200"
-                                        />
-                                    </div>
-
-                                    <div className="flex flex-col items-center text-center px-6 animate-explosiveIn">
-                                        <div className="w-40 h-40 sm:w-56 sm:h-56 mb-8 relative">
-                                            {/* Brand Glow Backdrop - 200% Larger & More Transparent */}
-                                            <div className="absolute inset-[-120px] rounded-full blur-[100px] opacity-40 animate-pulse"
-                                                style={{
-                                                    background: 'conic-gradient(#8a7ee2, #F4C82B, #8a7ee2, #086FB6, #8a7ee2)'
-                                                }}
-                                            ></div>
-
-                                            {/* Falling Crown on Avatar */}
-                                            {special60.showAvatarCrown && (
-                                                <div className="absolute left-1/2 -translate-x-1/2 top-[-36%] w-[60%] z-20 animate-crown-fall">
-                                                    <img src="./GoldCrown.png" alt="Crown" className="w-full h-auto object-contain drop-shadow-[0_0_50px_rgba(244,200,43,1)]" />
-                                                </div>
-                                            )}
-
-                                            <div className="relative w-full h-full p-[6px] rounded-full overflow-hidden shadow-[0_0_40px_rgba(138,126,226,0.5)]">
-                                                <div
-                                                    className="absolute inset-0 animate-spinSlow"
-                                                    style={{
-                                                        background: 'conic-gradient(from 0deg, #8a7ee2, #F4C82B, #8a7ee2, #086FB6, #1FA8A1, #8a7ee2)',
-                                                        backgroundSize: '200% 200%'
-                                                    }}
-                                                ></div>
-                                                <div className="relative bg-darker rounded-full p-1 w-full h-full">
-                                                    <div className="w-full h-full rounded-full overflow-hidden border-4 border-darker">
-                                                        <img
-                                                            src={avatarSrc(special60.user)}
-                                                            alt={special60.user}
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <h2 className="text-4xl sm:text-6xl font-black text-white mb-4 drop-shadow-lg animate-explosiveIn">نقطة ألماااسية!!!</h2>
-                                        <p className="text-xl sm:text-2xl text-snow/90 mb-6 drop-shadow-md animate-[slideUpFade_1s_ease-out_0.2s_both]">جزيت خيرًا يا {getFirstName(special60.user)} 🤍</p>
-                                    </div>
-
-                                    {/* White Sparkles Overlay */}
-                                    {showSparkles && (
-                                        <div className="absolute inset-0 pointer-events-none overflow-hidden z-[1002]">
-                                            {sparklePositions.map((sparkle, i) => (
-                                                <div
-                                                    key={i}
-                                                    className="absolute animate-sparkle-up opacity-0"
-                                                    style={{
-                                                        top: `${sparkle.top}%`,
-                                                        left: `${sparkle.left}%`,
-                                                        animationDelay: `${sparkle.delay}s`,
-                                                        animationDuration: `${sparkle.speed}s`
-                                                    }}
-                                                >
-                                                    <svg className="w-5 h-5 sm:w-7 sm:h-7 fill-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" viewBox="0 0 24 24" style={{ stroke: 'none' }}>
-                                                        <path d="M12 2L10.5 8.5L4 10L10.5 11.5L12 18L13.5 11.5L20 10L13.5 8.5L12 2Z" />
-                                                    </svg>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                    
-                                    {/* Continue Button */}
-                                    {special60.showContinue && (
-                                        <div className="absolute bottom-16 left-0 right-0 flex justify-center z-[1010] animate-fade-in" style={{ animationDuration: '1s' }}>
-                                            <button
-                                                onClick={() => {
-                                                    setSpecial60(prev => ({ ...prev, phase: 'screenshot' }));
-                                                    setShowSparkles(false);
-                                                }}
-                                                className="px-10 py-4 bg-[#8a7ee2] text-white rounded-full font-black text-xl shadow-[0_0_30px_rgba(138,126,226,0.6)] hover:scale-105 hover:bg-[#786dd1] transition-all"
-                                            >
-                                                متابعة
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Screenshot Screen (Like Wheel Result) */}
-                            {special60.phase === 'screenshot' && (
-                                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md animate-explosiveIn p-4">
-                                    <div className="glass-panel w-full max-w-sm p-8 text-center border-2 border-[#8a7ee2] shadow-[0_0_100px_rgba(138,126,226,0.3)]">
-                                        <div className="w-32 h-32 rounded-full mx-auto mb-6 overflow-hidden border-4 border-[#8a7ee2]">
-                                            <img src={avatarSrc(special60.user)} alt={special60.user} className="w-full h-full object-cover" />
-                                        </div>
-                                        <h3 className="text-4xl font-black mb-4 text-[#8a7ee2]">
-                                            مبروووك! 🎉
-                                        </h3>
-                                        <div className="bg-darker p-6 rounded-2xl border border-snow/10 mb-8">
-                                            <p className="text-2xl font-bold text-snow leading-relaxed">
-                                                لقد حصلت على +60 نقطة!
-                                            </p>
-                                        </div>
-                                        <p className="text-snow/50 text-sm mb-6 font-medium animate-pulse">قم بالتقاط الشاشة وارسلها للمشرف 📸</p>
-                                        <button
-                                            onClick={() => { setSpecial60({ isActive: false, phase: null, showContinue: false, user: null }); }}
-                                            className="w-full py-4 rounded-xl font-black text-xl transition-all shadow-lg bg-[#8a7ee2] text-white hover:bg-[#786dd1]"
-                                        >تم</button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                    {/* Special 60: the +60 show (plus60/plus60.js). متابعة closes it; the show fades
+                        itself out (the sound over a couple of seconds) after React lets it go. */}
+                    {special60.isActive && (
+                        <Plus60Stage show={special60} onContinue={() => setSpecial60({ isActive: false, phase: null, showContinue: false, user: null })} />
                     )}
 
                     {/* صحبة الفجر — the round on THIS site is closed. The floating
@@ -3103,7 +3041,7 @@
                     {/* ===== مكتبة المدوّنة — claim a finished-task's points ===== */}
                     {(() => {
                         const claim = libraryClaims[0];
-                        const show = claim && !isAddingPoints && !special60.isActive && celebration === null && !isPageSuckingIn && !showPromotionModal;
+                        const show = claim && !isAddingPoints && !special60.isActive && celebration === null && celebrationCard === null && !isPageSuckingIn && !showPromotionModal;
                         if (!show) return null;
                         const accent = claim.color || '#3bb9ab';
                         return (

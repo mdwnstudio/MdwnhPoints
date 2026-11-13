@@ -1,0 +1,215 @@
+/* +30: أحسنتم عملاً — the celebration for a +30 (the button and the wheel).
+   Not timed to its sound: a short pop, in order of importance. The avatar pops
+   first, the +30 sticker slams onto it halfway through, the words follow, and
+   everything then keeps a slow idle (rays turning, a float) until it leaves by
+   moving out. Each element runs one animation; chained moves are nested
+   wrappers so they never fight over `transform`. */
+
+.c30 {
+  --a: clamp(140px, min(50vw, 32vh), 250px);
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(60% 50% at 50% 42%, rgba(113, 58, 184, .38), transparent 70%),
+    radial-gradient(50% 40% at 80% 85%, rgba(0, 132, 193, .25), transparent 70%),
+    rgba(5, 6, 20, .94);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  animation: c30-fade .3s ease-out both;
+}
+/* leaving replaces each running animation, so nothing is left held on screen by one */
+.c30.is-leaving { animation: c30-fade-out .7s ease .1s both; }
+
+/* the sunburst behind the avatar: grows in, then turns slowly */
+.c30-rays-in {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: calc(var(--a) * 5);
+  height: calc(var(--a) * 5);
+  margin: calc(var(--a) * -2.5) 0 0 calc(var(--a) * -2.5);
+  pointer-events: none;
+  animation: c30-rays-in .8s cubic-bezier(.16, 1, .3, 1) .05s both;
+}
+.c30-rays {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(247, 208, 56, .2) 0deg 7deg, rgba(247, 208, 56, 0) 7deg 20deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0 14%, rgba(0, 0, 0, .55) 32%, transparent 62%);
+  mask-image: radial-gradient(circle, #000 0 14%, rgba(0, 0, 0, .55) 32%, transparent 62%);
+  animation: c30-spin 26s linear infinite;
+}
+
+.c30-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  pointer-events: none;
+  opacity: 0;
+  animation: c30-flash .5s ease-out .05s both;
+}
+
+.c30-logo {
+  position: absolute;
+  top: max(24px, 4.5vh);
+  width: clamp(110px, 28vw, 180px);
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, .5));
+  animation: c30-drop .7s cubic-bezier(.16, 1, .3, 1) .3s both;
+}
+
+/* the avatar, its rings and the sticker */
+.c30-stage {
+  position: relative;
+  width: var(--a);
+  height: var(--a);
+  margin-bottom: clamp(22px, 4vh, 40px);
+  animation: c30-shake .34s linear .68s both;
+}
+.c30-glow {
+  position: absolute;
+  inset: -45%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(247, 208, 56, .45), rgba(245, 101, 73, .18) 40%, transparent 68%);
+  animation: c30-breathe 2.6s ease-in-out .8s infinite;
+  pointer-events: none;
+}
+.c30-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid rgba(247, 208, 56, .95);
+  opacity: 0;
+  pointer-events: none;
+  animation: c30-ring .9s cubic-bezier(.16, 1, .3, 1) .24s both;
+}
+.c30-ring--late {
+  border-color: rgba(69, 196, 185, .9);
+  animation-delay: .68s;
+  animation-duration: .8s;
+}
+.c30-float {
+  position: absolute;
+  inset: 0;
+  animation: c30-float 3.4s ease-in-out .85s infinite;
+}
+.c30-av {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  padding: 5%;
+  background: conic-gradient(from 210deg, #f7d038, #f56549, #713ab8, #0084c1, #45c4b9, #f7d038);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .2), 0 14px 50px rgba(0, 0, 0, .5);
+  animation: c30-pop .8s cubic-bezier(.2, .8, .3, 1) .05s both;
+}
+.c30-av img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #1a1a1a;
+}
+/* the +30 badge slams onto the avatar's corner, wobbles, then rides with it */
+.c30-badge {
+  position: absolute;
+  width: 52%;
+  right: -16%;
+  bottom: -10%;
+  animation: c30-slam .3s cubic-bezier(.7, 0, .84, 0) .38s both;
+}
+.c30-badge__wob { animation: c30-wobble .8s cubic-bezier(.2, .8, .3, 1) .68s both; }
+.c30-badge img {
+  display: block;
+  width: 100%;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .45));
+  animation: c30-bob 2.8s ease-in-out 1.5s infinite;
+}
+
+/* the words: each pops in after the one before it */
+.c30-title {
+  margin: 0 0 10px;
+  padding: 0 16px;
+  text-align: center;
+  font: 900 clamp(36px, 9.5vw, 66px)/1.15 'Norsal', system-ui, sans-serif;
+  color: #faf9f7;
+  text-shadow: 0 6px 24px rgba(0, 0, 0, .5);
+}
+.c30-title span {
+  display: inline-block;
+  animation: c30-word .6s cubic-bezier(.34, 1.56, .64, 1) both;
+  animation-delay: calc(.56s + var(--i) * .12s);
+}
+.c30-title span + span { margin-inline-start: .25em; }
+.c30-title .c30-hi { color: #f7d038; text-shadow: 0 0 26px rgba(247, 208, 56, .55), 0 6px 24px rgba(0, 0, 0, .5); }
+.c30-sub {
+  margin: 0;
+  padding: 0 16px;
+  text-align: center;
+  font: 700 clamp(17px, 4.6vw, 24px)/1.5 'Norsal', system-ui, sans-serif;
+  color: rgba(250, 249, 247, .88);
+  animation: c30-rise .6s cubic-bezier(.16, 1, .3, 1) .92s both;
+}
+
+/* leaving: everything moves out (the overlay fades behind it) */
+.c30.is-leaving .c30-stage { animation: c30-out .45s cubic-bezier(.7, 0, .84, 0) both; }
+.c30.is-leaving .c30-title,
+.c30.is-leaving .c30-sub { animation: c30-sink .4s cubic-bezier(.7, 0, .84, 0) both; }
+.c30.is-leaving .c30-logo { animation: c30-up .4s cubic-bezier(.7, 0, .84, 0) both; }
+
+@keyframes c30-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes c30-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes c30-sink { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(24px); } }
+@keyframes c30-rays-in { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+@keyframes c30-spin { to { transform: rotate(360deg); } }
+@keyframes c30-flash { 0% { opacity: 0; } 12% { opacity: .5; } 100% { opacity: 0; } }
+@keyframes c30-drop { from { opacity: 0; transform: translateY(-40px); } to { opacity: .95; transform: none; } }
+@keyframes c30-up { to { opacity: 0; transform: translateY(-40px); } }
+@keyframes c30-pop {
+  0% { transform: scale(0) rotate(-14deg); }
+  40% { transform: scale(1.18) rotate(5deg); }
+  58% { transform: scale(1.1, .88) rotate(0); }
+  75% { transform: scale(.96, 1.05); }
+  100% { transform: scale(1); }
+}
+@keyframes c30-ring { 0% { opacity: .95; transform: scale(.7); } 100% { opacity: 0; transform: scale(2.5); } }
+@keyframes c30-float { 0%, 100% { transform: translateY(0) rotate(-1.2deg); } 50% { transform: translateY(-9px) rotate(1.2deg); } }
+@keyframes c30-breathe { 0%, 100% { opacity: .85; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes c30-slam {
+  0% { opacity: 0; transform: translate(70%, -120%) scale(2.6) rotate(-50deg); }
+  40% { opacity: 1; }
+  100% { opacity: 1; transform: translate(0, 0) scale(1) rotate(-12deg); }
+}
+@keyframes c30-wobble {
+  0% { transform: scale(1.24, .8); }
+  22% { transform: scale(.92, 1.08) rotate(8deg); }
+  45% { transform: scale(1.04, .97) rotate(-5deg); }
+  70% { transform: rotate(2deg); }
+  100% { transform: none; }
+}
+@keyframes c30-bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-5px) rotate(4deg); } }
+@keyframes c30-shake {
+  0% { transform: translate(0, 0); }
+  15% { transform: translate(-7px, 5px); }
+  30% { transform: translate(6px, -4px); }
+  48% { transform: translate(-4px, 2px); }
+  66% { transform: translate(2px, -1px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes c30-word {
+  from { opacity: 0; transform: translateY(.55em) scale(.4); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes c30-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes c30-out { to { opacity: 0; transform: scale(.7) translateY(-6%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .c30 *, .c30 { animation-duration: .01s !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; }
+  .c30-flash { display: none; }
+}
