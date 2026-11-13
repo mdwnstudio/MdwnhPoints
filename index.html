@@ -474,13 +474,21 @@
         // a slot is one score — everyone tied on it shares that single slot, however many they
         // are. So a tie never pushes anyone down a tier: it frees a place instead. Tiers 5..2
         // take 5 slots each; الخشبيون (tier 1) is the floor and takes whatever is left.
+        // Anyone on 0 (or below) has not entered the board yet: they sit under every tier in
+        // «بلا نقاط» (tier 0), each on their own row, and take no slot. Without this a fresh
+        // season is one 29-way tie for الذهبيون.
         const assignTiers = (sortedPlayers) => {
             let slot = -1;
             return sortedPlayers.map((p, i) => {
+                if (p.points <= 0) return { ...p, rank: null, tier: 0 };
                 if (i === 0 || p.points !== sortedPlayers[i - 1].points) slot++;
                 return { ...p, rank: slot + 1, tier: Math.max(1, 5 - Math.floor(slot / 5)) };
             });
         };
+        const TIER_ZERO = { level: 0, nameAr: 'بلا نقاط', emoji: '🌱', color: 'rgba(250,249,247,0.55)', bg: 'rgba(250,249,247,0.06)', border: 'rgba(250,249,247,0.22)', glow: 'rgba(250,249,247,0.2)' };
+        const tierCfg = (n) => (n >= 1 && n <= 5 ? TIER_CONFIG[n - 1] : TIER_ZERO);
+        // One box each: nobody on 0 is "tied" with anybody, they just have not started.
+        const singleRows = (list) => list.map(p => ({ points: p.points, place: null, members: [p] }));
 
         // Collapse a shown list into one entry per score — one slot, one box. Boxes are numbered
         // by their own position (1, 2, 3…), so a two-way gold is followed by silver rather than
@@ -598,7 +606,7 @@
                 <div className="flex items-stretch gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-2xl border-2 transition-all hover:scale-[1.01]"
                     style={cardStyle}>
                     <div className="text-3xl w-8 shrink-0 flex items-center justify-center">
-                        {group.place < 3 ? medals[group.place] : <span className="font-black text-base" style={{ color: 'rgba(250,249,247,0.3)' }}>{group.place + 1}</span>}
+                        {group.place === null ? null : group.place < 3 ? medals[group.place] : <span className="font-black text-base" style={{ color: 'rgba(250,249,247,0.3)' }}>{group.place + 1}</span>}
                     </div>
                     <div className="flex-1 min-w-0 flex items-stretch">
                         {members.map((m, k) => {
@@ -1793,12 +1801,12 @@
             // Tier system: assign each player a level 1-5 (top 5 = level 5, etc.)
             const tieredPlayers = assignTiers(players);
             const userTierEntry = currentUser ? tieredPlayers.find(p => p.name === currentUser) : null;
-            const userTierNum = userTierEntry?.tier || null;
-            const userTierConfig = userTierNum ? TIER_CONFIG[userTierNum - 1] : null;
+            const userTierNum = userTierEntry ? userTierEntry.tier : null;
+            const userTierConfig = userTierNum !== null ? tierCfg(userTierNum) : null;
             // Members get the stand-in board; the leader always sees the real one.
             const hideBoard = boardHidden && !adminMode;
             const myBoardPoints = players.find(p => p.name === currentUser)?.points ?? 0;
-            const activeTierNum = viewedTier !== null ? viewedTier : (userTierNum || 1);
+            const activeTierNum = viewedTier !== null ? viewedTier : (userTierNum !== null ? userTierNum : 1);
 
             // High tiers (فضيون / ذهبيون) default to the "عرض الكل" view instead of "مستواي" —
             // top players want to be seen against the whole board, not just their own small tier.
@@ -2216,7 +2224,7 @@
 
                                         {/* ── Tier level mini-nav (always shown) — dot marks your home tier ── */}
                                         <div className="flex justify-center items-start gap-2 mb-5">
-                                            {[...TIER_CONFIG].reverse().map(tc => {
+                                            {[...TIER_CONFIG].reverse().concat(tieredPlayers.some(p => p.tier === 0) ? [TIER_ZERO] : []).map(tc => {
                                                 const isActive = activeTierNum === tc.level && leaderboardView === 'tier';
                                                 const isMine = tc.level === userTierNum;
                                                 return (
@@ -2241,17 +2249,17 @@
                                         ) : leaderboardView === 'all' || adminMode ? (
                                             /* ── ALL TIERS VIEW ── */
                                             <div className="space-y-8 max-w-4xl mx-auto">
-                                                {[...TIER_CONFIG].reverse().map(tc => {
+                                                {[...TIER_CONFIG].reverse().concat([TIER_ZERO]).map(tc => {
                                                     const tPlayers = tieredPlayers.filter(p => p.tier === tc.level);
                                                     if (tPlayers.length === 0) return null;
-                                                    const tGroups = groupByPoints(tPlayers);
+                                                    const tGroups = tc.level === 0 ? singleRows(tPlayers) : groupByPoints(tPlayers);
                                                     return (
                                                         <div key={tc.level}>
                                                             <div className="flex items-center gap-3 mb-3 px-1">
                                                                 <span className="text-2xl">{tc.emoji}</span>
                                                                 <span className="font-black text-base" style={{ color: tc.color }}>{tc.nameAr}</span>
                                                                 <div className="flex-1 h-px" style={{ background: `linear-gradient(to left, transparent, ${tc.border})` }}></div>
-                                                                <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ color: tc.color, background: tc.bg, border: `1px solid ${tc.border}` }}>المستوى {tc.level}</span>
+                                                                {tc.level > 0 && <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ color: tc.color, background: tc.bg, border: `1px solid ${tc.border}` }}>المستوى {tc.level}</span>}
                                                             </div>
                                                             <div className="space-y-3">
                                                                 {tGroups.map(g => (
@@ -2266,9 +2274,9 @@
                                         ) : (
                                             /* ── SINGLE TIER VIEW ── */
                                             (() => {
-                                                const tc = TIER_CONFIG[activeTierNum - 1];
+                                                const tc = tierCfg(activeTierNum);
                                                 const tPlayers = tieredPlayers.filter(p => p.tier === activeTierNum);
-                                                const tGroups = groupByPoints(tPlayers);
+                                                const tGroups = activeTierNum === 0 ? singleRows(tPlayers) : groupByPoints(tPlayers);
                                                 // Every tier above, not just the next one: a wide tie group can leave the
                                                 // tier directly above empty, and the target is still the player just ahead.
                                                 const above = tieredPlayers.filter(p => p.tier > activeTierNum);
@@ -2285,7 +2293,7 @@
                                                         <div className="flex items-center justify-center gap-2 flex-wrap mb-5">
                                                             <span className="text-2xl leading-none">{tc.emoji}</span>
                                                             <h3 className="text-lg font-black" style={{ color: tc.color }}>{tc.nameAr}</h3>
-                                                            <span className="text-xs text-snow/40 font-bold">· المستوى {tc.level} من 5</span>
+                                                            {tc.level > 0 && <span className="text-xs text-snow/40 font-bold">· المستوى {tc.level} من 5</span>}
                                                             {userTierNum === activeTierNum && currentUser && (
                                                                 <span className="text-[11px] px-2 py-0.5 rounded-full font-black" style={{ background: tc.bg, border: `1px solid ${tc.border}`, color: tc.color }}>مستواك ✦</span>
                                                             )}
@@ -2301,7 +2309,10 @@
                                                             ))}
                                                         </div>
                                                         {/* Promotion gap */}
-                                                        {activeTierNum < 5 && tPlayers.length > 0 && promotionGap !== null && promotionGap > 0 && (
+                                                        {activeTierNum === 0 && tPlayers.length > 0 && (
+                                                            <p className="mt-6 text-center text-xs font-bold" style={{ color: tc.color }}>أول نقطة تكسبها تُدخلك الترتيب</p>
+                                                        )}
+                                                        {activeTierNum >= 1 && activeTierNum < 5 && tPlayers.length > 0 && promotionGap !== null && promotionGap > 0 && (
                                                             <div className="mt-8 pt-6 border-t border-snow/10">
                                                                 <p className="text-center text-xs font-bold" style={{ color: TIER_CONFIG[activeTierNum].color, opacity: 0.75 }}>
                                                                     للصعود إلى {TIER_CONFIG[activeTierNum].emoji} {TIER_CONFIG[activeTierNum].nameAr}
